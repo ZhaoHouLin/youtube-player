@@ -1,33 +1,134 @@
 <script>
 import { computed, onMounted, reactive, ref } from 'vue'
 
+// 高解析度大圖（1280 × 720）
+// http://img.youtube.com/vi/xxxxxxx/maxresdefault.jpg
+// 標準清晰圖 （640 × 480）
+// http://img.youtube.com/vi/xxxxxxx/sddefault.jpg
+// 高品質縮圖（480×360）
+// https://img.youtube.com/vi/xxxxxxx/hqdefault.jpg
+// 播放器背景縮圖（480×360）
+// http://img.youtube.com/vi/xxxxxxx/0.jpg　
+// 影片開始畫面縮圖（120×90）
+// http://img.youtube.com/vi/xxxxxxx/1.jpg
+// 影片中間片段縮圖（120×90）
+// http://img.youtube.com/vi/xxxxxxx/2.jpg
+// 影片結束縮圖（120×90）
+// http://img.youtube.com/vi/xxxxxxx/3.jpg
+
 export default {
 
   setup() {
-    let Player = ref()
 
-    let options = reactive({
-      techOrder: ["youtube"], 
-      sources: [
-        { 
-          "type": "video/youtube", 
-          "src": "https://www.youtube.com/watch?v=pjCyDeEYSq8"
-        }
-      ]
-    })
+    let player = reactive()
+    const done = ref(false)
 
-    const optionToJSON = computed(()=> {
-      console.log(JSON.stringify(options));
-      return JSON.stringify(options) 
-    })
+    const playlist = ref()
+    const volume = ref()
+
+    const getDuration = ()=> {
+      console.log(player.getDuration());
+      return player.getDuration()
+    }
+
+    const onPlayerReady = (event)=> {
+      event.target.playVideo()
+    }
+
+    const playVideo = ()=> {
+      player.playVideo()
+      console.log(player.getDuration())
+    }
+
+    const pauseVideo = ()=> {
+      console.log(player.getPlayerState());
+      player.pauseVideo()
+    }
+
+    const stopVideo = ()=> {
+      player.stopVideo()
+    }
+
+    const nextVideo = ()=> {
+      player.nextVideo()
+    }
+
+    const previousVideo = ()=> {
+      player.previousVideo()
+    }
+
+    const getPlaylist = ()=> {
+      playlist.value = player.getPlaylist()
+      console.log(playlist.value)
+    }
+
+    const getVolume = ()=> {
+    }
+
+    const changeVolume = (val)=> {
+      console.log('hi',val);
+      volume.value = val
+      player.setVolume(volume.value)
+    }
+
+    const onPlayerStateChange = (event)=> {
+      if (event.data == YT.PlayerState.PLAYING && !done.value) {
+        setTimeout(stopVideo, 6000);
+        done.value = true;
+      }
+    }
+
+    const loadPlaylist = ()=> {
+      player.loadPlaylist({
+        listType: 'playlist',
+        list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
+        index: 2,
+        // startSeconds: 1,
+        // suggestedQuality:String
+      })
+      // playlist.value = player.getPlaylist()
+      ;
+    }
+
+    const ytAPI = ()=> {
+      window.onYouTubeIframeAPIReady = ()=> {
+        player = new YT.Player('player', {
+          // height: '720',
+          // width: '1024',
+          // videoId: 'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
+          // cuePlaylist,
+          events: {
+            // 'onReady': onPlayerReady,
+            'onReady': loadPlaylist,
+            
+            // 'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+      getPlaylist()
+      
+    }
 
     onMounted(()=> {
-      // console.log(Player);
-    }) 
+      ytAPI()
+      
+    })
 
     return {
-      Player,
-      optionToJSON
+      player,
+      onPlayerReady,
+      playVideo,
+      pauseVideo,
+      stopVideo,
+      nextVideo,
+      previousVideo,
+      loadPlaylist,
+      getDuration,
+      getPlaylist,
+      playlist,
+      volume,
+      changeVolume,
+      getVolume
     }
   }
 }
@@ -35,8 +136,21 @@ export default {
 
 
 <template lang='pug'>
-video(ref='Player' id="vid1" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay width="1280" height="720" :data-setup='optionToJSON') 
+#player(ref='player')
+button(@click='stopVideo') stop
+button(@click='pauseVideo') pause
+button(@click='playVideo') play
+button(@click='nextVideo') nextVideo
+button(@click='previousVideo') previousVideo
 
+button(@click='loadPlaylist') list
+button(@click='getPlaylist') zz
+
+input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
+
+
+h1(v-for='item in playlist') {{item}}
+h1 {{volume}}
 
 </template>
 
@@ -48,4 +162,8 @@ video(ref='Player' id="vid1" class="video-js vjs-default-skin vjs-big-play-cente
   text-align center
   color #2c3e50
   margin-top 60px
+
+#player
+  width 1024px
+  height 400px
 </style>
