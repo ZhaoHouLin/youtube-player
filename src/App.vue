@@ -1,5 +1,5 @@
 <script>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 // 高解析度大圖（1280 × 720）
 // http://img.youtube.com/vi/xxxxxxx/maxresdefault.jpg
@@ -21,12 +21,14 @@ export default {
   setup() {
 
     let player = reactive()
+    let playerState = ref()
+
     const done = ref(false)
 
     const playlist = ref()
+    const info = reactive({data:''})
     const volume = ref(100)
 
-    let playerState = ref()
 
     const getDuration = ()=> {
       console.log(player.getDuration());
@@ -34,7 +36,6 @@ export default {
     }
 
     const onPlayerReady = (event)=> {
-      // console.log(event);
       event.target.playVideo()
     }
 
@@ -44,6 +45,8 @@ export default {
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
       console.log(playerState.value)
+      console.log(player.getPlaylistIndex());
+      console.log('data',data);
     }
 
     const pauseVideo = ()=> {
@@ -57,19 +60,19 @@ export default {
 
     const nextVideo = ()=> {
       player.nextVideo()
+      getPlaylist()
+      // console.log('list2',player.playerInfo.videoData)
     }
 
     const previousVideo = ()=> {
       player.previousVideo()
+      getPlaylist()
     }
 
-    const getPlaylist = ()=> {
-      playlist.value = player.getPlaylist()
-      console.log(playlist.value)
-    }
-
-    const setVolume = ()=> {
-      player.setVolume(volume.value)
+    const getPlaylist = ()=> {  
+      info.data = player.playerInfo.videoData 
+      console.log(player.playerInfo);
+      console.log(info);
     }
 
     const changeVolume = (val)=> {
@@ -86,7 +89,6 @@ export default {
     }
 
     const loadPlaylist = (event)=> {
-      
       player.loadPlaylist({
         listType: 'playlist',
         list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
@@ -94,10 +96,10 @@ export default {
         // startSeconds: 1,
         // suggestedQuality:String
       })
-
       player.setVolume(volume.value)
-      // playlist.value = player.getPlaylist()
-      // console.log(event.target.loadPlaylist);
+      setTimeout(() => {
+        getPlaylist()
+      }, 1000);
     }
 
     const ytAPI = ()=> {
@@ -106,17 +108,15 @@ export default {
           // height: '720',
           // width: '1024',
           // videoId: 'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
-          // cuePlaylist,
           events: {
             // 'onReady': onPlayerReady,
             'onReady': loadPlaylist,
-            
             // 'onStateChange': onPlayerStateChange
           }
         });
+        console.log('YT',YT);
+        console.log('player',player);
       }
-      getPlaylist()
-      
     }
 
     onMounted(()=> {
@@ -138,6 +138,7 @@ export default {
       volume,
       changeVolume,
       // getVolume
+      info
     }
   }
 }
@@ -160,6 +161,7 @@ input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeV
 
 h1(v-for='item in playlist') {{item}}
 h1 {{volume}}
+h2(v-for='item in info.data') {{item}}
 
 </template>
 
