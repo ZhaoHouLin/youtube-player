@@ -24,7 +24,7 @@ export default {
     const done = ref(false)
 
     const playlist = ref()
-    const volume = ref()
+    const volume = ref(100)
 
     const getDuration = ()=> {
       console.log(player.getDuration());
@@ -32,12 +32,13 @@ export default {
     }
 
     const onPlayerReady = (event)=> {
+      // console.log(event);
       event.target.playVideo()
     }
 
     const playVideo = ()=> {
       player.playVideo()
-      console.log(player.getDuration())
+      console.log(player.getPlayerState())
     }
 
     const pauseVideo = ()=> {
@@ -62,7 +63,8 @@ export default {
       console.log(playlist.value)
     }
 
-    const getVolume = ()=> {
+    const setVolume = ()=> {
+      player.setVolume(volume.value)
     }
 
     const changeVolume = (val)=> {
@@ -78,7 +80,8 @@ export default {
       }
     }
 
-    const loadPlaylist = ()=> {
+    const loadPlaylist = (event)=> {
+      
       player.loadPlaylist({
         listType: 'playlist',
         list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
@@ -86,8 +89,10 @@ export default {
         // startSeconds: 1,
         // suggestedQuality:String
       })
+
+      player.setVolume(volume.value)
       // playlist.value = player.getPlaylist()
-      ;
+      // console.log(event.target.loadPlaylist);
     }
 
     const ytAPI = ()=> {
@@ -111,7 +116,6 @@ export default {
 
     onMounted(()=> {
       ytAPI()
-      
     })
 
     return {
@@ -128,7 +132,7 @@ export default {
       playlist,
       volume,
       changeVolume,
-      getVolume
+      // getVolume
     }
   }
 }
