@@ -26,6 +26,8 @@ export default {
     const playlist = ref()
     const volume = ref(100)
 
+    let playerState = ref()
+
     const getDuration = ()=> {
       console.log(player.getDuration());
       return player.getDuration()
@@ -36,9 +38,12 @@ export default {
       event.target.playVideo()
     }
 
-    const playVideo = ()=> {
+    const playPauseVideo = ()=> {
       player.playVideo()
-      console.log(player.getPlayerState())
+      playerState.value = player.getPlayerState()
+      if(playerState.value == 2) player.playVideo()
+      if(playerState.value == 1) player.pauseVideo()
+      console.log(playerState.value)
     }
 
     const pauseVideo = ()=> {
@@ -121,7 +126,7 @@ export default {
     return {
       player,
       onPlayerReady,
-      playVideo,
+      playPauseVideo,
       pauseVideo,
       stopVideo,
       nextVideo,
@@ -142,8 +147,8 @@ export default {
 <template lang='pug'>
 #player(ref='player')
 button(@click='stopVideo') stop
-button(@click='pauseVideo') pause
-button(@click='playVideo') play
+//- button(@click='pauseVideo') pause
+button(@click='playPauseVideo') play & pause
 button(@click='nextVideo') nextVideo
 button(@click='previousVideo') previousVideo
 
