@@ -29,7 +29,6 @@ export default {
     const info = reactive({data:''})
     const volume = ref(100)
 
-
     const getDuration = ()=> {
       console.log(player.getDuration());
       return player.getDuration()
@@ -70,9 +69,11 @@ export default {
     }
 
     const getPlaylist = ()=> {  
-      info.data = player.playerInfo.videoData 
-      console.log(player.playerInfo);
-      console.log(info);
+      setTimeout(() => {
+        info.data = player.playerInfo.videoData 
+        console.log(player.playerInfo);
+        console.log(info);
+      }, 500);
     }
 
     const changeVolume = (val)=> {
@@ -97,9 +98,10 @@ export default {
         // suggestedQuality:String
       })
       player.setVolume(volume.value)
-      setTimeout(() => {
-        getPlaylist()
-      }, 1000);
+      getPlaylist()
+      // setTimeout(() => {
+      //   getPlaylist()
+      // }, 1000);
     }
 
     const ytAPI = ()=> {
@@ -118,6 +120,14 @@ export default {
         console.log('player',player);
       }
     }
+
+    // const getApi = ()=> {
+    //   return new Promise((resolve, reject)=> {
+    //     // ytAPI()
+    //     console.log(resolve());
+        
+    //   })
+    // }
 
     onMounted(()=> {
       ytAPI()
