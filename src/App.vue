@@ -66,15 +66,25 @@ export default {
     } 
 
     const getPlaylist = ()=> {  
-      // setTimeout(() => {
-        info.data = player.getVideoData()
-        info.videoUrl = player.getVideoUrl()
-        currentTime.value = player.getCurrentTime()
-        player.setVolume(volume.value)
-        console.log('duration',duration.value);
-        console.log('currentTime',currentTime.value);
-      // }, 1000);
+      info.data = player.getVideoData()
+      info.videoUrl = player.getVideoUrl()
+      currentTime.value = player.getCurrentTime()
+      player.setVolume(volume.value)
+      console.log('duration',duration.value);
+      console.log('currentTime',currentTime.value);
     }
+
+    const formatDuration = computed(()=> {
+      let dMinutes = '00'+Math.floor(duration.value/60)
+      let dSeconds = '00'+duration.value%60
+      return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
+    })
+
+    const formatCurrentTime = computed((val)=> {
+      let cMinutes = '00'+Math.floor(currentTime.value/60)
+      let cSeconds = '00'+currentTime.value%60
+      return `${cMinutes.substring(cMinutes.length-2)}:${cSeconds.substring(cSeconds.length-2)}`
+    })
 
     const changeVolume = (val)=> {
       volume.value = val
@@ -82,7 +92,6 @@ export default {
     }
 
     const setCurrentTime = ()=> {
-      
       player.seekTo(currentTime.value)
     }
     const currentTimer = ()=> {
@@ -109,12 +118,6 @@ export default {
         list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
         index: 2,
       })
-      // console.log('player',player);
-
-     
-      
-      // getPlaylist()
-  
     }
 
     const ytAPI = ()=> {
@@ -151,7 +154,9 @@ export default {
       info,
       duration,
       setCurrentTime,
-      currentTime
+      currentTime,
+      formatCurrentTime,
+      formatDuration,
       // duration
     }
   }
@@ -177,6 +182,8 @@ h1 {{volume}}
 label {{currentTime}}
 input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
 label {{duration}}
+h3 {{formatCurrentTime}}
+h3 {{formatDuration}}
 
 h2(v-for='item in info.data') {{item}}
 h2 {{info.videoUrl}}
