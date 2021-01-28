@@ -80,7 +80,7 @@ export default {
       return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
     })
 
-    const formatCurrentTime = computed((val)=> {
+    const formatCurrentTime = computed(()=> {
       let cMinutes = '00'+Math.floor(currentTime.value/60)
       let cSeconds = '00'+currentTime.value%60
       return `${cMinutes.substring(cMinutes.length-2)}:${cSeconds.substring(cSeconds.length-2)}`
