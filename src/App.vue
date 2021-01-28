@@ -28,11 +28,9 @@ export default {
     const playlist = ref()
     const info = reactive({data:''})
     const volume = ref(100)
-
-    const getDuration = ()=> {
-      console.log(player.getDuration());
-      return player.getDuration()
-    }
+    let duration = ref(0)
+    let currentTime = ref(0)
+    // let duration = ref(0)
 
     const onPlayerReady = (event)=> {
       event.target.playVideo()
@@ -60,77 +58,78 @@ export default {
     const nextVideo = ()=> {
       player.nextVideo()
       getPlaylist()
-      // console.log('list2',player.playerInfo.videoData)
     }
 
     const previousVideo = ()=> {
       player.previousVideo()
       getPlaylist()
-    }
+    } 
 
     const getPlaylist = ()=> {  
       setTimeout(() => {
-        info.data = player.playerInfo.videoData 
-        console.log(player.playerInfo);
-        console.log(info);
-      }, 500);
+        info.data = player.getVideoData()
+        info.videoUrl = player.getVideoUrl()
+        duration.value = player.getDuration()
+        currentTime.value = player.getCurrentTime()
+
+        console.log('duration',duration.value);
+        console.log('currentTime',currentTime.value);
+      }, 1000);
     }
 
     const changeVolume = (val)=> {
-      console.log('hi',val);
       volume.value = val
       player.setVolume(volume.value)
     }
 
-    const onPlayerStateChange = (event)=> {
-      if (event.data == YT.PlayerState.PLAYING && !done.value) {
-        setTimeout(stopVideo, 6000);
-        done.value = true;
-      }
+    const setCurrentTime = ()=> {
+      
+      player.seekTo(currentTime.value)
+    }
+    const currentTimer = ()=> {
+      setInterval(() => {
+        currentTime.value = Math.floor(player.getCurrentTime())
+        console.log(currentTime);
+      }, 1000);
     }
 
-    const loadPlaylist = (event)=> {
+    const onPlayerStateChange = (event)=> {
+      console.log('e',event);
+      // if (event.data == YT.PlayerState.PLAYING && !done.value) {
+      //   setTimeout(stopVideo, 6000);
+      //   done.value = true;
+      // }
+    }
+
+    const loadPlaylist = ()=> {
       player.loadPlaylist({
         listType: 'playlist',
         list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
         index: 2,
-        // startSeconds: 1,
-        // suggestedQuality:String
       })
+      console.log('player',player);
+
       player.setVolume(volume.value)
+      
       getPlaylist()
-      // setTimeout(() => {
-      //   getPlaylist()
-      // }, 1000);
+  
     }
 
     const ytAPI = ()=> {
       window.onYouTubeIframeAPIReady = ()=> {
         player = new YT.Player('player', {
-          // height: '720',
-          // width: '1024',
-          // videoId: 'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
           events: {
             // 'onReady': onPlayerReady,
             'onReady': loadPlaylist,
-            // 'onStateChange': onPlayerStateChange
+            'onStateChange': onPlayerStateChange
           }
-        });
-        console.log('YT',YT);
-        console.log('player',player);
-      }
+        })
+      }      
     }
-
-    // const getApi = ()=> {
-    //   return new Promise((resolve, reject)=> {
-    //     // ytAPI()
-    //     console.log(resolve());
-        
-    //   })
-    // }
 
     onMounted(()=> {
       ytAPI()
+      currentTimer()
     })
 
     return {
@@ -142,13 +141,16 @@ export default {
       nextVideo,
       previousVideo,
       loadPlaylist,
-      getDuration,
+      // setDuration,
       getPlaylist,
       playlist,
       volume,
       changeVolume,
-      // getVolume
-      info
+      info,
+      duration,
+      setCurrentTime,
+      currentTime
+      // duration
     }
   }
 }
@@ -169,10 +171,13 @@ button(@click='getPlaylist') zz
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
 
-h1(v-for='item in playlist') {{item}}
 h1 {{volume}}
-h2(v-for='item in info.data') {{item}}
+label {{currentTime}}
+input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
+label {{duration}}
 
+h2(v-for='item in info.data') {{item}}
+h2 {{info.videoUrl}}
 </template>
 
 <style lang="stylus">
@@ -185,6 +190,6 @@ h2(v-for='item in info.data') {{item}}
   margin-top 60px
 
 #player
-  width 1024px
-  height 400px
+  width 600px
+  height 200px
 </style>
