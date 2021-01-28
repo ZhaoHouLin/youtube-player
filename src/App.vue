@@ -28,9 +28,10 @@ export default {
     const playlist = ref()
     const info = reactive({data:''})
     const volume = ref(100)
-    let duration = ref(0)
+    let duration = ref()
     let currentTime = ref(0)
     // let duration = ref(0)
+
 
     const onPlayerReady = (event)=> {
       event.target.playVideo()
@@ -41,9 +42,8 @@ export default {
       playerState.value = player.getPlayerState()
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
-      console.log(playerState.value)
-      console.log(player.getPlaylistIndex());
-      console.log('data',data);
+      // console.log(playerState.value)
+      // console.log(player.getPlaylistIndex());
     }
 
     const pauseVideo = ()=> {
@@ -66,15 +66,14 @@ export default {
     } 
 
     const getPlaylist = ()=> {  
-      setTimeout(() => {
+      // setTimeout(() => {
         info.data = player.getVideoData()
         info.videoUrl = player.getVideoUrl()
-        duration.value = player.getDuration()
         currentTime.value = player.getCurrentTime()
-
+        player.setVolume(volume.value)
         console.log('duration',duration.value);
         console.log('currentTime',currentTime.value);
-      }, 1000);
+      // }, 1000);
     }
 
     const changeVolume = (val)=> {
@@ -89,16 +88,19 @@ export default {
     const currentTimer = ()=> {
       setInterval(() => {
         currentTime.value = Math.floor(player.getCurrentTime())
-        console.log(currentTime);
+        // console.log(currentTime);
       }, 1000);
     }
 
     const onPlayerStateChange = (event)=> {
-      console.log('e',event);
-      // if (event.data == YT.PlayerState.PLAYING && !done.value) {
-      //   setTimeout(stopVideo, 6000);
-      //   done.value = true;
-      // }
+      console.log('e',event.data);
+      if (event.data == YT.PlayerState.BUFFERING) {
+        console.log('finish');
+        getPlaylist() 
+      }
+      if (event.data == YT.PlayerState.ENDED ||YT.PlayerState.CUED) {
+        duration.value = Math.floor(player.getDuration())
+      }
     }
 
     const loadPlaylist = ()=> {
@@ -107,11 +109,11 @@ export default {
         list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
         index: 2,
       })
-      console.log('player',player);
+      // console.log('player',player);
 
-      player.setVolume(volume.value)
+     
       
-      getPlaylist()
+      // getPlaylist()
   
     }
 
