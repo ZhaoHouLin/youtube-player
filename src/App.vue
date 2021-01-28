@@ -74,18 +74,12 @@ export default {
       console.log('currentTime',currentTime.value);
     }
 
-    const formatDuration = computed(()=> {
-      let dMinutes = '00'+Math.floor(duration.value/60)
-      let dSeconds = '00'+duration.value%60
+    const formatTime = (val)=> {
+      let dMinutes = '00'+Math.floor(val/60)
+      let dSeconds = '00'+val%60
       return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
-    })
-
-    const formatCurrentTime = computed(()=> {
-      let cMinutes = '00'+Math.floor(currentTime.value/60)
-      let cSeconds = '00'+currentTime.value%60
-      return `${cMinutes.substring(cMinutes.length-2)}:${cSeconds.substring(cSeconds.length-2)}`
-    })
-
+    }
+    
     const changeVolume = (val)=> {
       volume.value = val
       player.setVolume(volume.value)
@@ -155,8 +149,7 @@ export default {
       duration,
       setCurrentTime,
       currentTime,
-      formatCurrentTime,
-      formatDuration,
+      formatTime
       // duration
     }
   }
@@ -182,8 +175,8 @@ h1 {{volume}}
 label {{currentTime}}
 input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
 label {{duration}}
-h3 {{formatCurrentTime}}
-h3 {{formatDuration}}
+h3 {{formatTime(currentTime)}}
+h3 {{formatTime(duration)}}
 
 h2(v-for='item in info.data') {{item}}
 h2 {{info.videoUrl}}
