@@ -23,7 +23,7 @@ export default {
     let player = reactive()
     let playerState = ref()
 
-    const listId= ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
+    const ytId= ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
 
     const done = ref(false)
 
@@ -34,16 +34,28 @@ export default {
     let currentTime = ref(0)
     let ytUrl = ref('')
 
-    const urlGetListId = ()=> {
+    // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
+
+    // https://www.youtube.com/watch?list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&v=l4ZLQJgv-Q8&feature=emb_logo&ab_channel=CHMusicChannel
+
+    // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
+
+    const urlGetId = ()=> {
+      let idHandleArray = ytUrl.value.split('&')
       if(ytUrl.value.indexOf('list=')!==-1){
-        let idHandle = ytUrl.value.split('list=')[1]
-        let listIdResult = idHandle.split('&v=')[0]
-        let idResult= idHandle.split('&v=')[1].split('&ab_channel=')[0]
-        console.log('list',listIdResult,idResult);
+        let listId = idHandleArray.filter((item)=> {
+          return item.indexOf('list=') !==-1
+        })
+        let idResult = listId[0].split('list=')[1]
+        ytId.value = idResult
+        loadPlaylist()
       } else {
-        let idHandle = ytUrl.value.split('?v=')[1]
-        let idResult= idHandle.split('&ab_channel=')[0]
-        console.log('normal',idHandle,idResult);
+        let vId = idHandleArray.filter((item)=> {
+          return item.indexOf('v=') !==-1
+        })
+        let idResult = vId[0].split('v=')[1]
+        ytId.value = idResult
+        loadVideo()
       }
     }
 
@@ -56,8 +68,7 @@ export default {
       playerState.value = player.getPlayerState()
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
-      // console.log(playerState.value)
-      // console.log(player.getPlaylistIndex());
+
     }
 
     const pauseVideo = ()=> {
@@ -84,7 +95,7 @@ export default {
       info.videoUrl = player.getVideoUrl()
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
-      console.log('data',player.getPlaylist());
+      // console.log('data',player.getPlaylist());
     }
 
     const formatTime = (val)=> {
@@ -104,14 +115,12 @@ export default {
     const currentTimer = ()=> {
       setInterval(() => {
         currentTime.value = Math.floor(player.getCurrentTime())
-        // console.log(currentTime);
       }, 1000);
     }
 
     const onPlayerStateChange = (event)=> {
-      console.log('e',event.data);
+      // console.log('e',event.data);
       if (event.data == YT.PlayerState.BUFFERING) {
-        console.log('finish');
         getPlaylist() 
       }
       if (event.data == YT.PlayerState.ENDED ||YT.PlayerState.CUED) {
@@ -119,12 +128,16 @@ export default {
       }
     }
 
+    const loadVideo = ()=> {
+      player.loadVideoById({
+        videoId: ytId.value,
+      })
+    }
 
     const loadPlaylist = ()=> {
       player.loadPlaylist({
         listType: 'playlist',
-        list: listId.value,
-        index: 2,
+        list: ytId.value,
       })
     }
 
@@ -164,7 +177,7 @@ export default {
       currentTime,
       formatTime,
       ytUrl,
-      urlGetListId
+      urlGetId
       // duration
     }
   }
@@ -181,11 +194,11 @@ button(@click='nextVideo') nextVideo
 button(@click='previousVideo') previousVideo
 
 button(@click='loadPlaylist') list
-button(@click='urlGetListId') zz
+button(@click='urlGetId') zz
 
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
-input(type='text' v-model='ytUrl')
+input(type='text' v-model='ytUrl' @input='urlGetId')
 h2 {{ytUrl}}
 
 h1 {{volume}}
