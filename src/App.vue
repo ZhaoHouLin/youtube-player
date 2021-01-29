@@ -86,7 +86,7 @@ export default {
     }
 
     const setCurrentTime = ()=> {
-      player.seekTo(currentTime.value)
+      player.seekTo(currentTime.value,true)
     }
     const currentTimer = ()=> {
       setInterval(() => {
@@ -172,11 +172,10 @@ input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeV
 
 
 h1 {{volume}}
-label {{currentTime}}
+
+label {{formatTime(currentTime)}}
 input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
-label {{duration}}
-h3 {{formatTime(currentTime)}}
-h3 {{formatTime(duration)}}
+label {{formatTime(duration)}}
 
 h2(v-for='item in info.data') {{item}}
 h2 {{info.videoUrl}}
@@ -194,4 +193,7 @@ h2 {{info.videoUrl}}
 #player
   width 600px
   height 200px
+
+  
 </style>
+  
