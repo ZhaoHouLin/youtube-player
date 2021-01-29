@@ -23,6 +23,8 @@ export default {
     let player = reactive()
     let playerState = ref()
 
+    const listId= ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
+
     const done = ref(false)
 
     const playlist = ref()
@@ -30,8 +32,20 @@ export default {
     const volume = ref(100)
     let duration = ref()
     let currentTime = ref(0)
-    // let duration = ref(0)
+    let ytUrl = ref('')
 
+    const urlGetListId = ()=> {
+      if(ytUrl.value.indexOf('list=')!==-1){
+        let idHandle = ytUrl.value.split('list=')[1]
+        let listIdResult = idHandle.split('&v=')[0]
+        let idResult= idHandle.split('&v=')[1].split('&ab_channel=')[0]
+        console.log('list',listIdResult,idResult);
+      } else {
+        let idHandle = ytUrl.value.split('?v=')[1]
+        let idResult= idHandle.split('&ab_channel=')[0]
+        console.log('normal',idHandle,idResult);
+      }
+    }
 
     const onPlayerReady = (event)=> {
       event.target.playVideo()
@@ -70,8 +84,7 @@ export default {
       info.videoUrl = player.getVideoUrl()
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
-      console.log('duration',duration.value);
-      console.log('currentTime',currentTime.value);
+      console.log('data',player.getPlaylist());
     }
 
     const formatTime = (val)=> {
@@ -106,10 +119,11 @@ export default {
       }
     }
 
+
     const loadPlaylist = ()=> {
       player.loadPlaylist({
         listType: 'playlist',
-        list:'PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI',
+        list: listId.value,
         index: 2,
       })
     }
@@ -122,8 +136,8 @@ export default {
             'onReady': loadPlaylist,
             'onStateChange': onPlayerStateChange
           }
-        })
-      }      
+        })     
+      }
     }
 
     onMounted(()=> {
@@ -140,7 +154,6 @@ export default {
       nextVideo,
       previousVideo,
       loadPlaylist,
-      // setDuration,
       getPlaylist,
       playlist,
       volume,
@@ -149,7 +162,9 @@ export default {
       duration,
       setCurrentTime,
       currentTime,
-      formatTime
+      formatTime,
+      ytUrl,
+      urlGetListId
       // duration
     }
   }
@@ -166,10 +181,12 @@ button(@click='nextVideo') nextVideo
 button(@click='previousVideo') previousVideo
 
 button(@click='loadPlaylist') list
-button(@click='getPlaylist') zz
+button(@click='urlGetListId') zz
 
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
+input(type='text' v-model='ytUrl')
+h2 {{ytUrl}}
 
 h1 {{volume}}
 
