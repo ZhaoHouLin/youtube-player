@@ -33,6 +33,7 @@ export default {
     let duration = ref()
     let currentTime = ref(0)
     let ytUrl = ref('')
+    let videoCover = ref('')
 
     // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
 
@@ -58,6 +59,13 @@ export default {
         loadVideo()
       }
     }
+
+    const loadVideoCover = computed(()=> {
+      // return `http://img.youtube.com/vi/${ytId.value}/sddefault.jpg`
+      // return `http://img.youtube.com/vi/${ytId.value}/0.jpg`
+      return `http://img.youtube.com/vi/${ytId.value}/maxresdefault.jpg`
+    })
+     
 
     const onPlayerReady = (event)=> {
       event.target.playVideo()
@@ -178,7 +186,8 @@ export default {
       currentTime,
       formatTime,
       ytUrl,
-      urlGetId
+      urlGetId,
+      loadVideoCover
       // duration
     }
   }
@@ -188,6 +197,7 @@ export default {
 
 <template lang='pug'>
 #player(ref='player')
+img(:src="loadVideoCover", alt="alt")
 button(@click='stopVideo') stop
 //- button(@click='pauseVideo') pause
 button(@click='playPauseVideo') play & pause
@@ -227,6 +237,8 @@ a(:href="info.videoUrl")
   width 600px
   height 200px
 
-  
+img
+  width 400px
+  height auto
 </style>
   
