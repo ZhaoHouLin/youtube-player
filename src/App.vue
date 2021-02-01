@@ -95,7 +95,7 @@ export default {
       info.videoUrl = player.getVideoUrl()
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
-      // console.log('data',player.getPlaylist());
+      console.log('data',info.data);
     }
 
     const formatTime = (val)=> {
@@ -119,12 +119,13 @@ export default {
     }
 
     const onPlayerStateChange = (event)=> {
-      // console.log('e',event.data);
+      console.log('e',event);
       if (event.data == YT.PlayerState.BUFFERING) {
         getPlaylist() 
       }
       if (event.data == YT.PlayerState.ENDED ||YT.PlayerState.CUED) {
         duration.value = Math.floor(player.getDuration())
+        getPlaylist() 
       }
     }
 
@@ -146,7 +147,7 @@ export default {
         player = new YT.Player('player', {
           events: {
             // 'onReady': onPlayerReady,
-            'onReady': loadPlaylist,
+            // 'onReady': loadPlaylist,
             'onStateChange': onPlayerStateChange
           }
         })     
@@ -207,8 +208,10 @@ label {{formatTime(currentTime)}}
 input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
 label {{formatTime(duration)}}
 
-h2(v-for='item in info.data') {{item}}
-h2 {{info.videoUrl}}
+
+a(:href="info.videoUrl")
+  h2 名稱: {{info.data.title}} 
+
 </template>
 
 <style lang="stylus">
