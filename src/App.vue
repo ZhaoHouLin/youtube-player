@@ -26,7 +26,8 @@ export default {
     // const ytId = ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
     const ytId = reactive({
       list: '',
-      video: ''
+      video: '',
+      index: ''
     })
     const done = ref(false)
 
@@ -47,19 +48,20 @@ export default {
 
     const handleUrlVideoId = (arr)=> {
       console.log('arr',arr);
-      let vId = arr.filter((item)=> item.indexOf('v=') !==-1)
-      let idResult = vId[0].split('v=')[1]
-      ytId.video = idResult
+      let filterVid = arr.filter((item)=> item.indexOf('v=') !==-1)
+      ytId.video = filterVid[0].split('v=')[1]
     }
 
     const urlGetId = ()=> {
       let idHandleArray = ytUrl.value.split('&')
       handleUrlVideoId(idHandleArray)
-      if(ytUrl.value.indexOf('list=')!==-1){
-        let listId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
-        let listIdResult = listId[0].split('list=')[1]
-        console.log('list',listId);
-        ytId.list = listIdResult
+      if(ytUrl.value.indexOf('list=') !== -1){
+        let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
+        let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
+        ytId.list = filterListId[0].split('list=')[1]
+        ytId.index = filterIndex[0].split('index=')[1]-1
+        // console.log('idx',ytId.index,'list',ytId.list,'player',player);
+        loadVideo()       //消除輸入另一個播放清單切換不過去的問題
         loadPlaylist()
       } else {
         loadVideo()
@@ -67,9 +69,7 @@ export default {
     }
 
     const loadVideoCover = computed(()=> {
-      // return `http://img.youtube.com/vi/${ytId.value}/sddefault.jpg`
-      // return `http://img.youtube.com/vi/${ytId.value}/0.jpg`
-      return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
+       return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
     })
      
     const onPlayerReady = (event)=> {
@@ -116,6 +116,8 @@ export default {
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
       console.log('data',info.data);
+      console.log(player.getPlaylistIndex());
+      // console.log('idx',ytId.index,'list',ytId.list ,'data',info.data);
     }
 
     const formatTime = (val)=> {
@@ -139,11 +141,11 @@ export default {
     }
 
     const onPlayerStateChange = (event)=> {
-      console.log('e',event);
+      // console.log('e',event);
       if (event.data == YT.PlayerState.BUFFERING) {
         getPlaylist() 
       }
-      if (event.data == YT.PlayerState.ENDED ||YT.PlayerState.CUED) {
+      if (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED) {
         duration.value = Math.floor(player.getDuration())
         getPlaylist() 
       }
@@ -159,6 +161,7 @@ export default {
       player.loadPlaylist({
         listType: 'playlist',
         list: ytId.list,
+        index: ytId.index
       })
     }
 
