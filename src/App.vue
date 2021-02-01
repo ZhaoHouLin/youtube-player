@@ -42,6 +42,7 @@ export default {
 
     // https://www.youtube.com/watch?list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&v=l4ZLQJgv-Q8&feature=emb_logo&ab_channel=CHMusicChannel
 
+
     // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
 
     const handleUrlVideoId = (arr)=> {
@@ -100,6 +101,14 @@ export default {
       player.previousVideo()
       getPlaylist()
     } 
+
+    const listLoop = ()=> {
+      player.setLoop(true)
+    }
+
+    const oneLoop = ()=> {
+      
+    }
 
     const getPlaylist = ()=> {  
       info.data = player.getVideoData()
@@ -190,7 +199,9 @@ export default {
       formatTime,
       ytUrl,
       urlGetId,
-      loadVideoCover
+      loadVideoCover,
+      listLoop,
+      oneLoop
       // duration
     }
   }
@@ -208,7 +219,10 @@ button(@click='nextVideo') nextVideo
 button(@click='previousVideo') previousVideo
 
 button(@click='loadPlaylist') list
-button(@click='urlGetId') zz
+button(@click='urlGetId') get
+
+button(@click='listLoop') listLoop
+button(@click='oneLoop') oneLoop
 
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
