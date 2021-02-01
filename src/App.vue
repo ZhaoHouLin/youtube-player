@@ -23,8 +23,11 @@ export default {
     let player = reactive()
     let playerState = ref()
 
-    const ytId= ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
-
+    // const ytId = ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
+    const ytId = reactive({
+      list: '',
+      video: ''
+    })
     const done = ref(false)
 
     const playlist = ref()
@@ -41,21 +44,23 @@ export default {
 
     // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
 
+    const handleUrlVideoId = (arr)=> {
+      console.log('arr',arr);
+      let vId = arr.filter((item)=> item.indexOf('v=') !==-1)
+      let idResult = vId[0].split('v=')[1]
+      ytId.video = idResult
+    }
+
     const urlGetId = ()=> {
       let idHandleArray = ytUrl.value.split('&')
+      handleUrlVideoId(idHandleArray)
       if(ytUrl.value.indexOf('list=')!==-1){
-        let listId = idHandleArray.filter((item)=> {
-          return item.indexOf('list=') !==-1
-        })
-        let idResult = listId[0].split('list=')[1]
-        ytId.value = idResult
+        let listId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
+        let listIdResult = listId[0].split('list=')[1]
+        console.log('list',listId);
+        ytId.list = listIdResult
         loadPlaylist()
       } else {
-        let vId = idHandleArray.filter((item)=> {
-          return item.indexOf('v=') !==-1
-        })
-        let idResult = vId[0].split('v=')[1]
-        ytId.value = idResult
         loadVideo()
       }
     }
@@ -63,10 +68,9 @@ export default {
     const loadVideoCover = computed(()=> {
       // return `http://img.youtube.com/vi/${ytId.value}/sddefault.jpg`
       // return `http://img.youtube.com/vi/${ytId.value}/0.jpg`
-      return `http://img.youtube.com/vi/${ytId.value}/maxresdefault.jpg`
+      return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
     })
      
-
     const onPlayerReady = (event)=> {
       event.target.playVideo()
     }
@@ -76,7 +80,6 @@ export default {
       playerState.value = player.getPlayerState()
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
-
     }
 
     const pauseVideo = ()=> {
@@ -139,14 +142,14 @@ export default {
 
     const loadVideo = ()=> {
       player.loadVideoById({
-        videoId: ytId.value,
+        videoId: ytId.video,
       })
     }
 
     const loadPlaylist = ()=> {
       player.loadPlaylist({
         listType: 'playlist',
-        list: ytId.value,
+        list: ytId.list,
       })
     }
 
