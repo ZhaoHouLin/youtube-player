@@ -27,24 +27,25 @@ export default {
     const ytId = reactive({
       list: '',
       video: '',
-      index: ''
+      index: 0
     })
     const done = ref(false)
 
-    const playlist = ref()
+    const playlist = ref([])
     const info = reactive({data:''})
     const volume = ref(100)
     let duration = ref()
     let currentTime = ref(0)
     let ytUrl = ref('')
     let videoCover = ref('')
-
+    const isOneLoop = ref(false)
     // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
 
     // https://www.youtube.com/watch?list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&v=l4ZLQJgv-Q8&feature=emb_logo&ab_channel=CHMusicChannel
 
-
     // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
+
+
 
     const handleUrlVideoId = (arr)=> {
       console.log('arr',arr);
@@ -62,7 +63,8 @@ export default {
         ytId.index = filterIndex[0].split('index=')[1]-1
         // console.log('idx',ytId.index,'list',ytId.list,'player',player);
         loadVideo()       //消除輸入另一個播放清單切換不過去的問題
-        loadPlaylist()
+        loadPlaylist(ytId.list)
+
       } else {
         loadVideo()
       }
@@ -99,15 +101,25 @@ export default {
 
     const previousVideo = ()=> {
       player.previousVideo()
-      getPlaylist()
+      getPlaylist()     
+      ytId.index = ytId.index-1
+      // console.log('ytId',ytId.video);
     } 
 
     const listLoop = ()=> {
       player.setLoop(true)
+      
     }
 
     const oneLoop = ()=> {
-      
+      isOneLoop.value = true
+      console.log(isOneLoop.value);
+      ytId.video = info.data.video_id
+      console.log(ytId.video );
+      getPlaylist() 
+      // // player.setLoop(true)
+      // loadPlaylist(ytId.video)
+      // player.setLoop(true)
     }
 
     const getPlaylist = ()=> {  
@@ -115,9 +127,8 @@ export default {
       info.videoUrl = player.getVideoUrl()
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
-      console.log('data',info.data);
-      console.log(player.getPlaylistIndex());
-      // console.log('idx',ytId.index,'list',ytId.list ,'data',info.data);
+      playlist.value = player.getPlaylist()
+      // console.log('player',player);
     }
 
     const formatTime = (val)=> {
@@ -142,25 +153,30 @@ export default {
 
     const onPlayerStateChange = (event)=> {
       // console.log('e',event);
-      if (event.data == YT.PlayerState.BUFFERING) {
+      if ((event.data == YT.PlayerState.BUFFERING) && !isOneLoop.value) {
         getPlaylist() 
       }
-      if (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED) {
+      if ((event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED )&& !isOneLoop.value) {
         duration.value = Math.floor(player.getDuration())
         getPlaylist() 
+      }
+      if (event.data == YT.PlayerState.ENDED && isOneLoop.value == true) {
+        loadVideo() 
       }
     }
 
     const loadVideo = ()=> {
+      // console.log('vId',vId);
+      console.log('ytId',ytId.video)
       player.loadVideoById({
         videoId: ytId.video,
       })
     }
 
-    const loadPlaylist = ()=> {
+    const loadPlaylist = (id)=> {
       player.loadPlaylist({
         listType: 'playlist',
-        list: ytId.list,
+        list: id,
         index: ytId.index
       })
     }
@@ -169,8 +185,6 @@ export default {
       window.onYouTubeIframeAPIReady = ()=> {
         player = new YT.Player('player', {
           events: {
-            // 'onReady': onPlayerReady,
-            // 'onReady': loadPlaylist,
             'onStateChange': onPlayerStateChange
           }
         })     
@@ -180,6 +194,7 @@ export default {
     onMounted(()=> {
       ytAPI()
       currentTimer()
+      
     })
 
     return {
@@ -213,7 +228,7 @@ export default {
 
 
 <template lang='pug'>
-#player(ref='player')
+#player(ref='player' loop)
 img(:src="loadVideoCover", alt="alt")
 button(@click='stopVideo') stop
 //- button(@click='pauseVideo') pause
@@ -241,6 +256,7 @@ label {{formatTime(duration)}}
 
 a(:href="info.videoUrl")
   h2 名稱: {{info.data.title}} 
+  h2 {{info.data.video_id}}
 
 </template>
 
