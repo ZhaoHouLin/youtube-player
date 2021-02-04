@@ -61,12 +61,10 @@ export default {
         let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
         ytId.list = filterListId[0].split('list=')[1]
         ytId.index = filterIndex[0].split('index=')[1]-1
-        // console.log('idx',ytId.index,'list',ytId.list,'player',player);
         loadVideo()       //消除輸入另一個播放清單切換不過去的問題
-        loadPlaylist(ytId.list)
-
+        loadPlaylist(ytId.list,ytId.index)
       } else {
-        loadVideo()
+        loadVideo(ytId.video)
       }
     }
 
@@ -95,16 +93,38 @@ export default {
     }
 
     const nextVideo = ()=> {
+      isOneLoop.value = false
+      player.setLoop(true)
       player.nextVideo()
-      getPlaylist()
+      ytId.index = playlist.value.indexOf(info.data.video_id) + 1
+      loadPlaylist(ytId.list,ytId.index)
+      if(ytId.index > playlist.value.length-1) {
+        ytId.index = 0
+      } 
     }
 
     const previousVideo = ()=> {
+      isOneLoop.value = false
+      player.setLoop(true)
       player.previousVideo()
-      getPlaylist()     
-      ytId.index = ytId.index-1
-      // console.log('ytId',ytId.video);
+      ytId.index = playlist.value.indexOf(info.data.video_id) - 1
+      loadPlaylist(ytId.list,ytId.index)
+      console.log(playlist.value);   
+      if(ytId.index < 0) {
+        ytId.index = playlist.value.length-1
+      } 
     } 
+
+    const getPlaylist = ()=> {  
+      duration.value = Math.floor(player.getDuration())
+      info.data = player.getVideoData()
+      info.videoUrl = player.getVideoUrl()
+      currentTime.value = player.getCurrentTime()
+      player.setVolume(volume.value)
+      // playlist.value = player.getPlaylist()
+      console.log('getList',player.getPlaylist());
+      // console.log('player',player);
+    }
 
     const listLoop = ()=> {
       player.setLoop(true)
@@ -115,21 +135,10 @@ export default {
       isOneLoop.value = true
       console.log(isOneLoop.value);
       ytId.video = info.data.video_id
-      console.log(ytId.video );
+      console.log(ytId.video);
       getPlaylist() 
-      // // player.setLoop(true)
-      // loadPlaylist(ytId.video)
-      // player.setLoop(true)
     }
 
-    const getPlaylist = ()=> {  
-      info.data = player.getVideoData()
-      info.videoUrl = player.getVideoUrl()
-      currentTime.value = player.getCurrentTime()
-      player.setVolume(volume.value)
-      playlist.value = player.getPlaylist()
-      // console.log('player',player);
-    }
 
     const formatTime = (val)=> {
       let dMinutes = '00'+Math.floor(val/60)
@@ -152,33 +161,37 @@ export default {
     }
 
     const onPlayerStateChange = (event)=> {
-      // console.log('e',event);
       if ((event.data == YT.PlayerState.BUFFERING) && !isOneLoop.value) {
         getPlaylist() 
       }
-      if ((event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED )&& !isOneLoop.value) {
-        duration.value = Math.floor(player.getDuration())
+      if ((event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !isOneLoop.value) {
         getPlaylist() 
       }
-      if (event.data == YT.PlayerState.ENDED && isOneLoop.value == true) {
-        loadVideo() 
-      }
+      if (event.data == YT.PlayerState.ENDED && isOneLoop.value) {
+        loadVideo(ytId.video)
+      } 
+      if (event.data == YT.PlayerState.CUED && !isOneLoop.value) {
+        loadPlaylist(ytId.list,ytId.index) 
+      } 
     }
 
-    const loadVideo = ()=> {
-      // console.log('vId',vId);
+    const loadVideo = (id)=> {
       console.log('ytId',ytId.video)
       player.loadVideoById({
-        videoId: ytId.video,
+        videoId: id,
       })
+      
     }
 
-    const loadPlaylist = (id)=> {
+    const loadPlaylist = (id,idx)=> {
+      // playlist.value = player.getPlaylist()
       player.loadPlaylist({
         listType: 'playlist',
         list: id,
-        index: ytId.index
+        index: idx
       })
+      // player.setLoop(true)
+      
     }
 
     const ytAPI = ()=> {
@@ -247,7 +260,7 @@ input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeV
 input(type='text' v-model='ytUrl' @input='urlGetId')
 h2 {{ytUrl}}
 
-h1 {{volume}}
+//- h1 {{volume}}
 
 label {{formatTime(currentTime)}}
 input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
