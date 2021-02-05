@@ -39,8 +39,8 @@ export default {
     let duration = ref('00')
     let currentTime = ref(0)
     let ytUrl = ref('')
-    let videoCover = ref('')
     const isOneLoop = ref(false)
+    const isRandom = ref(false)
     // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
 
     // https://www.youtube.com/watch?list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&v=l4ZLQJgv-Q8&feature=emb_logo&ab_channel=CHMusicChannel
@@ -53,6 +53,7 @@ export default {
       console.log('arr',arr);
       let filterVid = arr.filter((item)=> item.indexOf('v=') !==-1)
       ytId.video = filterVid[0].split('v=')[1]
+      isRandom.value = false
     }
 
     const urlGetId = ()=> {
@@ -147,6 +148,12 @@ export default {
       })  
     }
 
+    const randomVideo = ()=> {
+      isRandom.value = !isRandom.value
+      console.log(isRandom.value);
+      player.setShuffle(isRandom.value)
+    }
+
     const oneLoop = ()=> {
       isOneLoop.value = true
       console.log(isOneLoop.value);
@@ -171,6 +178,7 @@ export default {
     const setCurrentTime = ()=> {
       player.seekTo(currentTime.value,true)
     }
+
     const currentTimer = ()=> {
       setInterval(() => {
         currentTime.value = Math.floor(player.getCurrentTime())
@@ -186,9 +194,6 @@ export default {
       }
       if (event.data == YT.PlayerState.ENDED && isOneLoop.value) {
         loadVideo(ytId.video)
-      } 
-      if (event.data == YT.PlayerState.CUED && !isOneLoop.value) {
-        loadPlaylist(ytId.list,ytId.index) 
       } 
     }
 
@@ -232,7 +237,8 @@ export default {
       urlGetId,
       loadVideoCover,
       listLoop,
-      oneLoop
+      oneLoop,
+      randomVideo
       // duration
     }
   }
@@ -251,14 +257,13 @@ button(@click='previousVideo') previousVideo
 
 button(@click='loadPlaylist') list
 button(@click='urlGetId') get
-
+button(@click='randomVideo') random
 button(@click='listLoop') listLoop
 button(@click='oneLoop') oneLoop
 
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
 input(type='text' v-model='ytUrl' @input='urlGetId')
-h2 {{ytUrl}}
 
 //- h1 {{volume}}
 
