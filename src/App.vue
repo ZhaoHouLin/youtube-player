@@ -31,10 +31,12 @@ export default {
     })
     const done = ref(false)
 
-    const playlist = ref([])
+    const playlist = reactive({
+      data: []
+    })
     const info = reactive({data:''})
     const volume = ref(100)
-    let duration = ref()
+    let duration = ref('00')
     let currentTime = ref(0)
     let ytUrl = ref('')
     let videoCover = ref('')
@@ -63,6 +65,7 @@ export default {
         ytId.index = filterIndex[0].split('index=')[1]-1
         loadVideo()       //消除輸入另一個播放清單切換不過去的問題
         loadPlaylist(ytId.list,ytId.index)
+        
       } else {
         loadVideo(ytId.video)
       }
@@ -96,23 +99,29 @@ export default {
       isOneLoop.value = false
       player.setLoop(true)
       player.nextVideo()
-      ytId.index = playlist.value.indexOf(info.data.video_id) + 1
-      loadPlaylist(ytId.list,ytId.index)
-      if(ytId.index > playlist.value.length-1) {
+      ytId.index = playlist.data.indexOf(info.data.video_id) + 1
+      ytId.video = playlist.data[ytId.index]
+      console.log('nextlist',playlist.data);
+      if(ytId.index > playlist.data.length-1) {
         ytId.index = 0
+        ytId.video = playlist.data[ytId.index]
       } 
+      loadVideo()
+      loadPlaylist(ytId.list,ytId.index)      //單曲循環後確保清單播放
     }
 
     const previousVideo = ()=> {
       isOneLoop.value = false
       player.setLoop(true)
       player.previousVideo()
-      ytId.index = playlist.value.indexOf(info.data.video_id) - 1
-      loadPlaylist(ytId.list,ytId.index)
-      console.log(playlist.value);   
+      ytId.index = playlist.data.indexOf(info.data.video_id) - 1
+      ytId.video = playlist.data[ytId.index]
       if(ytId.index < 0) {
-        ytId.index = playlist.value.length-1
-      } 
+        ytId.index = playlist.data.length-1
+        ytId.video = playlist.data[ytId.index]
+      }
+      loadVideo()
+      loadPlaylist(ytId.list,ytId.index) 
     } 
 
     const getPlaylist = ()=> {  
@@ -121,24 +130,32 @@ export default {
       info.videoUrl = player.getVideoUrl()
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
-      // playlist.value = player.getPlaylist()
-      console.log('getList',player.getPlaylist());
-      // console.log('player',player);
+      playlist.data = player.getPlaylist()
     }
 
-    const listLoop = ()=> {
-      player.setLoop(true)
-      
+    const loadVideo = (id)=> {
+      player.loadVideoById({
+        videoId: id,
+      })
+    }
+
+    const loadPlaylist = (id,idx)=> {
+      player.loadPlaylist({
+        listType: 'playlist',
+        list: id,
+        index: idx
+      })  
     }
 
     const oneLoop = ()=> {
       isOneLoop.value = true
       console.log(isOneLoop.value);
       ytId.video = info.data.video_id
-      console.log(ytId.video);
-      getPlaylist() 
+      // loadVideo(ytId.video)
     }
-
+    const listLoop = ()=> {
+      player.setLoop(true)
+    }
 
     const formatTime = (val)=> {
       let dMinutes = '00'+Math.floor(val/60)
@@ -175,24 +192,7 @@ export default {
       } 
     }
 
-    const loadVideo = (id)=> {
-      console.log('ytId',ytId.video)
-      player.loadVideoById({
-        videoId: id,
-      })
-      
-    }
 
-    const loadPlaylist = (id,idx)=> {
-      // playlist.value = player.getPlaylist()
-      player.loadPlaylist({
-        listType: 'playlist',
-        list: id,
-        index: idx
-      })
-      // player.setLoop(true)
-      
-    }
 
     const ytAPI = ()=> {
       window.onYouTubeIframeAPIReady = ()=> {
