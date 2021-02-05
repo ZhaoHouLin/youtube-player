@@ -204,7 +204,9 @@ export default {
       if (event.data == YT.PlayerState.ENDED && isOneLoop.value) {
         loadVideo(ytId.video)
       } 
-      
+      if (event.data == YT.PlayerState.ENDED && !isOneLoop.value) {
+        nextVideo()
+      } 
     }
 
 
