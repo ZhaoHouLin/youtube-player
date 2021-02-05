@@ -63,10 +63,13 @@ export default {
         let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
         let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
         ytId.list = filterListId[0].split('list=')[1]
-        ytId.index = filterIndex[0].split('index=')[1]-1
-        loadVideo()       //消除輸入另一個播放清單切換不過去的問題
+
+        if (filterIndex.indexOf('index=')!==-1) {
+          ytId.index = filterIndex[0].split('index=')[1]-1
+        } else {
+          loadVideo(ytId.video)     //消除輸入另一個播放清單切換不過去的問題
+        }
         loadPlaylist(ytId.list,ytId.index)
-        
       } else {
         loadVideo(ytId.video)
       }
