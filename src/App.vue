@@ -78,6 +78,11 @@ export default {
     const loadVideoCover = computed(()=> {
        return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
     })
+
+    const buttonPlayPause = computed(()=> {
+      if(playerState.value == 2 || playerState.value == 5) return true
+      if(playerState.value == 1 ) return false
+    })
      
     const onPlayerReady = (event)=> {
       event.target.playVideo()
@@ -85,17 +90,17 @@ export default {
 
     const playPauseVideo = ()=> {
       player.playVideo()
-      playerState.value = player.getPlayerState()
+      console.log(player.getPlayerState());
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
     }
 
     const pauseVideo = ()=> {
-      console.log(player.getPlayerState());
       player.pauseVideo()
     }
 
     const stopVideo = ()=> {
+      console.log(player.getPlayerState());
       player.stopVideo()
     }
 
@@ -135,6 +140,7 @@ export default {
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
       playlist.data = player.getPlaylist()
+      playerState.value = player.getPlayerState()
     }
 
     const loadVideo = (id)=> {
@@ -198,6 +204,7 @@ export default {
       if (event.data == YT.PlayerState.ENDED && isOneLoop.value) {
         loadVideo(ytId.video)
       } 
+      
     }
 
 
@@ -241,7 +248,9 @@ export default {
       loadVideoCover,
       listLoop,
       oneLoop,
-      randomVideo
+      randomVideo,
+      playerState,
+      buttonPlayPause
       // duration
     }
   }
@@ -254,9 +263,13 @@ export default {
 img(:src="loadVideoCover", alt="alt")
 button(@click='stopVideo') stop
 //- button(@click='pauseVideo') pause
-button(@click='playPauseVideo') play & pause
-button(@click='nextVideo') nextVideo
-button(@click='previousVideo') previousVideo
+button(@click='previousVideo')
+  i.fas.fa-step-backward
+button(@click='playPauseVideo')
+  i(:class='["fas",{"fa-play":buttonPlayPause},{"fa-pause":!buttonPlayPause}]')
+  //- i.fas.fa-play(v-if='playerState==2')
+button(@click='nextVideo')
+  i.fas.fa-step-forward
 
 button(@click='loadPlaylist') list
 button(@click='urlGetId') get
