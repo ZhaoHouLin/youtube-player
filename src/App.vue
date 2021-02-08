@@ -80,7 +80,7 @@ export default {
     })
 
     const buttonPlayPause = computed(()=> {
-      if(playerState.value == 2 || playerState.value == 5) return true
+      if(playerState.value == 2 || playerState.value == 3) return true
       if(playerState.value == 1 ) return false
     })
      
@@ -90,6 +90,7 @@ export default {
 
     const playPauseVideo = ()=> {
       player.playVideo()
+      playerState.value = player.getPlayerState()
       console.log(player.getPlayerState());
       if(playerState.value == 2) player.playVideo()
       if(playerState.value == 1) player.pauseVideo()
@@ -140,7 +141,6 @@ export default {
       currentTime.value = player.getCurrentTime()
       player.setVolume(volume.value)
       playlist.data = player.getPlaylist()
-      playerState.value = player.getPlayerState()
     }
 
     const loadVideo = (id)=> {
@@ -196,6 +196,7 @@ export default {
 
     const onPlayerStateChange = (event)=> {
       if ((event.data == YT.PlayerState.BUFFERING) && !isOneLoop.value) {
+        playerState.value = player.getPlayerState()
         getPlaylist() 
       }
       if ((event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !isOneLoop.value) {
@@ -268,8 +269,9 @@ button(@click='stopVideo') stop
 button(@click='previousVideo')
   i.fas.fa-step-backward
 button(@click='playPauseVideo')
-  i(:class='["fas",{"fa-play":buttonPlayPause},{"fa-pause":!buttonPlayPause}]')
-  //- i.fas.fa-play(v-if='playerState==2')
+  i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
+  //- i.fas.fa-play(v-if='playerState==1')
+  //- i.fas.fa-pause(v-if='playerState==2 || playerState==3')
 button(@click='nextVideo')
   i.fas.fa-step-forward
 
