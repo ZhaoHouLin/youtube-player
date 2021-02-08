@@ -36,7 +36,7 @@ export default {
       data: []
     })
     const info = reactive({data:''})
-    const volume = ref(100)
+    const volume = ref(50)
     let duration = ref('00')
     let currentTime = ref(0)
     let ytUrl = ref('')
@@ -264,63 +264,80 @@ export default {
 
 
 <template lang='pug'>
-#player(ref='player' loop)
-img(:src="loadVideoCover", alt="alt")
-
-
-button(@click='previousVideo')
-  i.fas.fa-step-backward
-button(@click='stopVideo')
-  i.fas.fa-stop
-button(@click='playPauseVideo')
-  i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
-  //- i.fas.fa-play(v-if='playerState==1')
-  //- i.fas.fa-pause(v-if='playerState==2 || playerState==3')
-button(@click='nextVideo')
-  i.fas.fa-step-forward
-
-button(@click='randomVideo')
-  i.fas.fa-random
-//- button(@click='listLoop')
-//-   i.fas.fa-recycle
-button(@click='oneLoop' title='test')
-  i.fas.fa-undo
-
-//- button(@click='loadPlaylist') list
+#player(ref='player')
+input(type='text' v-model='ytUrl' @input='urlGetId')
 button(@click='urlGetId') send
 
-input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
+img(:src="loadVideoCover", alt="alt")
 
-input(type='text' v-model='ytUrl' @input='urlGetId')
+.progress-bar
+  label {{formatTime(currentTime)}}
+  input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
+  label {{formatTime(duration)}}
 
-//- h1 {{volume}}
+.control
+  button(@click='previousVideo')
+    i.fas.fa-step-backward
+  button(@click='stopVideo')
+    i.fas.fa-stop
+  button(@click='playPauseVideo')
+    i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
+    //- i.fas.fa-play(v-if='playerState==1')
+    //- i.fas.fa-pause(v-if='playerState==2 || playerState==3')
+  button(@click='nextVideo')
+    i.fas.fa-step-forward
 
-label {{formatTime(currentTime)}}
-input(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
-label {{formatTime(duration)}}
+  button(@click='randomVideo')
+    i.fas.fa-random
+  //- button(@click='listLoop')
+  //-   i.fas.fa-recycle
+  button(@click='oneLoop' title='test')
+    i.fas.fa-undo
 
+  //- button(@click='loadPlaylist') list
+  
 
-a(:href="info.videoUrl")
-  h2 名稱: {{info.data.title}} 
-  h2 {{info.data.video_id}}
+  
 
+.info
+  
+  input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
+
+  a(:href="info.videoUrl")
+    h2 {{info.data.title}} 
+    //- h2 {{info.data.video_id}}
+  
 </template>
 
 <style lang="stylus">
+@import './css/style.styl'
 #app
-  font-family Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
   text-align center
-  color #2c3e50
-  margin-top 60px
+  flexCenter(center,center,column)
+  size(100%,100vh)
 
 #player
-  width 600px
-  height 200px
+  size(100%,auto)
+  display none
 
 img
-  width 400px
+  width 100%
   height auto
+.progress-bar
+  size(100%,auto)
+  border solid 1px #222
+  flexCenter()
+  .bar
+    size(70%,auto)
+    margin 0 8px
+.control
+  size(100%,auto)
+  flexCenter()
+  button
+    size(100%,auto)
+    
+
 </style>
   
