@@ -90,6 +90,26 @@ export default {
       event.target.playVideo()
     }
 
+    const volumeRange = computed(()=> {
+      if (volume.value > 0 && volume.value < 50) return 2
+      if (volume.value > 50 && volume.value < 70) return 3
+      if (volume.value > 70) return 4
+      if (volume.value == 0) {
+        return 1
+      } else {
+        return 2
+      }
+    })
+
+    const mute = ()=> {
+      if (player.isMuted()) {
+        player.unMute()
+        volume.value = player.getVolume()
+      } else {
+        player.mute()
+        volume.value = 0
+      }
+    }
     const playPauseVideo = ()=> {
       player.playVideo()
       playerState.value = player.getPlayerState()
@@ -182,6 +202,7 @@ export default {
     }
     
     const changeVolume = (val)=> {
+      player.unMute()
       volume.value = val
       player.setVolume(volume.value)
     }
@@ -255,7 +276,9 @@ export default {
       oneLoop,
       randomVideo,
       playerState,
-      buttonPlayPause
+      buttonPlayPause,
+      mute,
+      volumeRange
       // duration
     }
   }
@@ -300,7 +323,12 @@ img(:src="loadVideoCover", alt="alt")
   
 
 .info
-  
+  button(@click='mute')
+    //- i.fas.fa-volume-mute
+    //- i.fas.fa-volume-up
+    //- i.fas.fa-volume-down
+    //- i.fas.fa-volume-off
+    i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
   a(:href="info.videoUrl")
@@ -320,7 +348,7 @@ img(:src="loadVideoCover", alt="alt")
 
 #player
   size(100%,auto)
-  display none
+  // display none
 
 img
   width 100%
