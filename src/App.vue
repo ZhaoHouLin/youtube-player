@@ -29,7 +29,8 @@ export default {
       video: '',
       index: 0
     })
-    const done = ref(false)
+
+    
 
     const playlist = reactive({
       data: []
@@ -40,6 +41,7 @@ export default {
     let currentTime = ref(0)
     let ytUrl = ref('')
     const isOneLoop = ref(false)
+    // const whichLoop = ref(3)
     const isRandom = ref(false)
     // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
 
@@ -106,8 +108,8 @@ export default {
     }
 
     const nextVideo = ()=> {
+      // whichLoop.value = 3
       isOneLoop.value = false
-      player.setLoop(true)
       player.nextVideo()
       ytId.index = playlist.data.indexOf(info.data.video_id) + 1
       ytId.video = playlist.data[ytId.index]
@@ -121,8 +123,8 @@ export default {
     }
 
     const previousVideo = ()=> {
+      // whichLoop.value = 3
       isOneLoop.value = false
-      player.setLoop(true)
       player.previousVideo()
       ytId.index = playlist.data.indexOf(info.data.video_id) - 1
       ytId.video = playlist.data[ytId.index]
@@ -165,13 +167,13 @@ export default {
 
     const oneLoop = ()=> {
       isOneLoop.value = true
-      console.log(isOneLoop.value);
       ytId.video = info.data.video_id
-      // loadVideo(ytId.video)
     }
-    const listLoop = ()=> {
-      player.setLoop(true)
-    }
+
+    // const listLoop = ()=> {
+    //   whichLoop.value = 2
+    //   // player.setLoop(true)
+    // }
 
     const formatTime = (val)=> {
       let dMinutes = '00'+Math.floor(val/60)
@@ -195,19 +197,19 @@ export default {
     }
 
     const onPlayerStateChange = (event)=> {
-      if ((event.data == YT.PlayerState.BUFFERING) && !isOneLoop.value) {
+      if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
         playerState.value = player.getPlayerState()
         getPlaylist() 
       }
-      if ((event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !isOneLoop.value) {
+      if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
         getPlaylist() 
       }
-      if (event.data == YT.PlayerState.ENDED && isOneLoop.value) {
+      if (event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
         loadVideo(ytId.video)
       } 
-      if (event.data == YT.PlayerState.ENDED && !isOneLoop.value) {
+      if ( event.data == YT.PlayerState.ENDED && !(isOneLoop.value) ) {
         nextVideo()
-      } 
+      }
     }
 
 
@@ -249,7 +251,7 @@ export default {
       ytUrl,
       urlGetId,
       loadVideoCover,
-      listLoop,
+      // listLoop,
       oneLoop,
       randomVideo,
       playerState,
@@ -264,10 +266,12 @@ export default {
 <template lang='pug'>
 #player(ref='player' loop)
 img(:src="loadVideoCover", alt="alt")
-button(@click='stopVideo') stop
-//- button(@click='pauseVideo') pause
+
+
 button(@click='previousVideo')
   i.fas.fa-step-backward
+button(@click='stopVideo')
+  i.fas.fa-stop
 button(@click='playPauseVideo')
   i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
   //- i.fas.fa-play(v-if='playerState==1')
@@ -275,11 +279,15 @@ button(@click='playPauseVideo')
 button(@click='nextVideo')
   i.fas.fa-step-forward
 
-button(@click='loadPlaylist') list
-button(@click='urlGetId') get
-button(@click='randomVideo') random
-button(@click='listLoop') listLoop
-button(@click='oneLoop') oneLoop
+button(@click='randomVideo')
+  i.fas.fa-random
+//- button(@click='listLoop')
+//-   i.fas.fa-recycle
+button(@click='oneLoop' title='test')
+  i.fas.fa-undo
+
+//- button(@click='loadPlaylist') list
+button(@click='urlGetId') send
 
 input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
