@@ -287,9 +287,11 @@ export default {
 
 
 <template lang='pug'>
+.user-enter-url
+  input(type='text' v-model='ytUrl' placeholder='enter YouTube video url')
+  button(@click='urlGetId' ) send
+
 #player(ref='player')
-input(type='text' v-model='ytUrl' @input='urlGetId')
-button(@click='urlGetId') send
 
 img(:src="loadVideoCover", alt="alt")
 
@@ -318,9 +320,6 @@ img(:src="loadVideoCover", alt="alt")
     i.fas.fa-undo
 
   //- button(@click='loadPlaylist') list
-  
-
-  
 
 .info
   button(@click='mute')
@@ -332,7 +331,7 @@ img(:src="loadVideoCover", alt="alt")
   input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
   a(:href="info.videoUrl")
-    h2 {{info.data.title}} 
+    h3 {{info.data.title}} 
     //- h2 {{info.data.video_id}}
   
 </template>
@@ -346,13 +345,21 @@ img(:src="loadVideoCover", alt="alt")
   flexCenter(center,center,column)
   size(100%,100vh)
 
-#player
+.user-enter-url
   size(100%,auto)
-  // display none
+  // border solid 1px #222
+  position absolute
+  top 0px
+  input
+    width 80%
+  button
+    width 20%
+#player
+  size(100%,50vh)
+  display none
 
 img
-  width 100%
-  height auto
+  size(100%,auto)
 .progress-bar
   size(100%,auto)
   border solid 1px #222
