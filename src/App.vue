@@ -38,7 +38,7 @@ export default {
     const info = reactive({data:''})
     const volume = ref(50)
     let duration = ref('00')
-    let currentTime = ref(0)
+    const currentTime = ref(0)
     let ytUrl = ref('')
     const isOneLoop = ref(false)
     // const whichLoop = ref(3)
@@ -157,6 +157,7 @@ export default {
     } 
 
     const getPlaylist = ()=> {  
+      currentTimer()
       duration.value = Math.floor(player.getDuration())
       info.data = player.getVideoData()
       info.videoUrl = player.getVideoUrl()
@@ -197,7 +198,7 @@ export default {
 
     const formatTime = (val)=> {
       let dMinutes = '00'+Math.floor(val/60)
-      let dSeconds = '00'+val%60
+      let dSeconds = '00'+Math.floor(val%60)
       return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
     }
     
@@ -258,7 +259,7 @@ export default {
 
     onMounted(()=> {
       ytAPI()
-      currentTimer()
+      // currentTimer()
       
     })
 
@@ -359,7 +360,7 @@ img(:src="loadVideoCover", alt="alt")
     width 20%
 #player
   size(100%,50vh)
-  display none
+  // display none
 
 img
   size(100%,auto)
