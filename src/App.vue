@@ -30,7 +30,7 @@ export default {
       index: 0
     })
 
-    
+    let count = ref(0)
 
     const playlist = reactive({
       data: []
@@ -216,6 +216,18 @@ export default {
         currentTime.value = Math.floor(player.getCurrentTime())
       }, 1000);
     }
+ 
+    const marqueeAnimate = computed(()=> {
+      if (playerState.value==3) {
+        return {
+          'animation-name': `marquee-animate`,
+          'animation-duration': `15s`,
+          'animation-iteration-count': `infinite`,
+          'animation-timing-function': `linear`,
+          'animation-direction': `alternate`
+        }
+      }
+    })
 
     const onPlayerStateChange = (event)=> {
       if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
@@ -232,7 +244,6 @@ export default {
         nextVideo()
       }
     }
-
 
 
     const ytAPI = ()=> {
@@ -272,14 +283,13 @@ export default {
       ytUrl,
       urlGetId,
       loadVideoCover,
-      // listLoop,
       oneLoop,
       randomVideo,
       playerState,
       buttonPlayPause,
       mute,
-      volumeRange
-      // duration
+      volumeRange,
+      marqueeAnimate
     }
   }
 }
@@ -322,8 +332,10 @@ img(:src="loadVideoCover", alt="alt")
   input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
 .info
-  a(:href="info.videoUrl")
+  a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
     h3 {{info.data.title}} 
+    //- marquee.title(direction="left" scrollamount="3" behavior="alternate")
+    
     //- h2 {{info.data.video_id}}
   
 </template>
@@ -339,7 +351,6 @@ img(:src="loadVideoCover", alt="alt")
 
 .user-enter-url
   size(100%,auto)
-  // border solid 1px #222
   position absolute
   top 0px
   input
@@ -391,15 +402,20 @@ img
   border solid 1px #222
   overflow hidden
   position relative
-  a
+  a.marquee
     white-space nowrap 
     position absolute
     color color-secondary
     size(100%,auto)
-    // left 30px
-    h2
-      size(100%,auto)
+     
 
+@keyframes marquee-animate
+  0%
+    left 0%
+  50%
+    left -100%
+  100%
+    left 0%
 
 </style>
   
