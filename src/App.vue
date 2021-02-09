@@ -307,29 +307,21 @@ img(:src="loadVideoCover", alt="alt")
     i.fas.fa-stop
   button(@click='playPauseVideo')
     i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
-    //- i.fas.fa-play(v-if='playerState==1')
-    //- i.fas.fa-pause(v-if='playerState==2 || playerState==3')
   button(@click='nextVideo')
     i.fas.fa-step-forward
 
   button(@click='randomVideo')
     i.fas.fa-random
-  //- button(@click='listLoop')
-  //-   i.fas.fa-recycle
+
   button(@click='oneLoop' title='test')
     i.fas.fa-undo
 
-  //- button(@click='loadPlaylist') list
-
-.info
+.volume-range
   button(@click='mute')
-    //- i.fas.fa-volume-mute
-    //- i.fas.fa-volume-up
-    //- i.fas.fa-volume-down
-    //- i.fas.fa-volume-off
     i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
 
+.info
   a(:href="info.videoUrl")
     h3 {{info.data.title}} 
     //- h2 {{info.data.video_id}}
@@ -367,12 +359,31 @@ img
   .bar
     size(70%,auto)
     margin 0 8px
-.control
+
+.control,.volume-range
   size(100%,auto)
   flexCenter()
   button
+    outline none
+    background-color color-primary-dark
+    color color-secondary
     size(100%,auto)
+    padding 8px
+    i
+      font-size md
+      
+        
+.volume-range
+  background-color color-primary-dark
+  flexCenter(flex-start,center,)
+  button
+    size((100/6)%,auto)
+  input
+    size((100/6)*5%,auto)
     
+.info
+  a
+    color color-secondary    
 
 </style>
   
