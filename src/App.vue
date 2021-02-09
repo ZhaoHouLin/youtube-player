@@ -30,7 +30,7 @@ export default {
       index: 0
     })
 
-    let count = ref(0)
+    const isOpen = ref(false)
 
     const playlist = reactive({
       data: []
@@ -50,6 +50,9 @@ export default {
     // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
 
 
+    const handleOpen = ()=> {
+      isOpen.value = !isOpen.value
+    }
 
     const handleUrlVideoId = (arr)=> {
       console.log('arr',arr);
@@ -290,7 +293,9 @@ export default {
       buttonPlayPause,
       mute,
       volumeRange,
-      marqueeAnimate
+      marqueeAnimate,
+      handleOpen,
+      isOpen
     }
   }
 }
@@ -298,9 +303,11 @@ export default {
 
 
 <template lang='pug'>
-.user-enter-url
-  input(type='text' v-model='ytUrl' placeholder='enter YouTube video url')
-  button(@click='urlGetId' ) send
+.menu
+  i(@click='handleOpen' :class='["fas",{"fa-bars": !isOpen},{"fa-times":isOpen}]')
+  .user-enter-url(:class='[{"open": isOpen}]')
+    input(type='text' v-model='ytUrl' placeholder='enter YouTube video url')
+    button(@click='urlGetId' ) send
 
 #player(ref='player')
 
@@ -335,9 +342,7 @@ img(:src="loadVideoCover", alt="alt")
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
     h3 {{info.data.title}} 
-    //- marquee.title(direction="left" scrollamount="3" behavior="alternate")
-    
-    //- h2 {{info.data.video_id}}
+
   
 </template>
 
@@ -350,20 +355,48 @@ img(:src="loadVideoCover", alt="alt")
   flexCenter(center,center,column)
   size(100%,100vh)
 
-.user-enter-url
-  size(100%,auto)
-  position absolute
-  top 0px
-  input
-    width 80%
-  button
-    width 20%
+
+
+.menu
+  size(100%,8vh)
+  background-color color-primary-dark
+  flexCenter(flex-start,center,)
+  // padding 0 1rem
+  i
+    // border solid 1px #eee
+    margin-right 1rem
+    padding 0 1rem
+    cursor pointer
+    size(10%,auto)
+    color color-secondary-dark
+    font-size md
+  .user-enter-url
+    // border solid 1px #eee
+    flexCenter()
+    size(0,0)
+    // position absolute
+    // top 0px
+    display none
+    input
+      width 80%
+    button
+      color #eee
+      width 20%
+    &.open
+      display block
+      size(90%,3vh)
+      input
+        width 80%
+      button
+        color #eee
+        width 20%
+  
 #player
-  size(100%,50vh)
+  size(100%,40vh)
   // display none
 
 img
-  size(100%,auto)
+  size(100%,40vh)
 .progress-bar
   size(100%,auto)
   border solid 1px #222
