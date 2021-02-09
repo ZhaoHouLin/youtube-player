@@ -1,5 +1,8 @@
 # youtube-player
 
+DEMO:
+https://zhaohoulin.github.io/youtube-player/#/
+
 ## Project setup
 ```
 npm install
