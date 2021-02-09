@@ -378,12 +378,28 @@ img
   flexCenter(flex-start,center,)
   button
     size((100/6)%,auto)
+    i
+      font-size 1.5rem
   input
-    size((100/6)*5%,auto)
-    
+    // color color-primary-dark
+    size((100/6)*5%,0.5vh)
+
+  
 .info
+  flexCenter()
+  size(100%,10vh)
+  border solid 1px #222
+  overflow hidden
+  position relative
   a
-    color color-secondary    
+    white-space nowrap 
+    position absolute
+    color color-secondary
+    size(100%,auto)
+    // left 30px
+    h2
+      size(100%,auto)
+
 
 </style>
   
