@@ -225,12 +225,12 @@ export default {
     const ytAPI = ()=> {
       window.onYouTubeIframeAPIReady = ()=> {
         
-        player = new YT.Player('player', {
+        let player = new YT.Player('player', {
           events: {
             'onStateChange': onPlayerStateChange
           }
         })    
-        store.dispatch('commitPlayer' ,player ) 
+        // store.dispatch('commitPlayer' ,player ) 
       }
     }
 
