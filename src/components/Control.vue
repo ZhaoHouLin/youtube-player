@@ -1,19 +1,48 @@
 <script>
 import { ref, computed} from 'vue'
+import { useStore } from 'vuex'
+import { apiGetCommonFn } from '../api'
 export default {
   setup() {
-    const currentTime = ref(0)
-    const duration = ref('00')
+    const store = useStore()
+
+    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+    
     const volume = ref(50)
+
+
     const ytId = computed(()=> {
       return store.getters.ytId
     })
     const player = computed(()=> {
       return store.getters.player
     })
+    const playerState = computed(()=> {
+      return store.getters.playerState
+    })
+    const playlist = computed(()=> {
+      return store.getters.playList
+    })
+    const info = computed(()=> {
+      return store.getters.info
+    })
+    // const playlist = store.state.playList
+
+    const currentTime = computed({                  //雙向綁定vuex寫法
+      set(val) {
+        store.dispatch('commitCurrentTime',val)
+      },
+      get() {
+        return store.getters.currentTime
+      }
+    })
+
+    const duration = computed(()=> {
+      return store.getters.duration
+    })
 
     const setCurrentTime = ()=> {
-      player.seekTo(currentTime.value,true)
+      player.value.seekTo(currentTime.value,true)
     }
 
     const formatTime = (val)=> {
@@ -29,63 +58,72 @@ export default {
 
     const previousVideo = ()=> {
       // whichLoop.value = 3
-      isOneLoop.value = false
-      player.previousVideo()
-      ytId.index = playlist.data.indexOf(info.data.video_id) - 1
-      ytId.video = playlist.data[ytId.index]
-      if(ytId.index < 0) {
-        ytId.index = playlist.data.length-1
-        ytId.video = playlist.data[ytId.index]
+      // isOneLoop.value = false
+      store.dispatch('commitIsOneLoop',false)
+      // store.dispatch('commitPlaylist',player.value.getPlaylist())
+      player.value.previousVideo()
+      // ytId.value.index = playlist.value.indexOf(info.value.data.video_id) - 1
+      // ytId.value.video = playlist.value[ytId.value.index]
+      
+      store.dispatch('commitYtIdIndex',(playlist.value.indexOf(info.value.data.video_id) - 1))
+      console.log('0?',playlist.value[ytId.value.index]);
+      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+
+      if(ytId.value.index < 0) {
+        store.dispatch('commitYtIdIndex',playlist.value.length-1)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
       }
-      loadVideo()
-      loadPlaylist(ytId.list,ytId.index) 
+      // loadVideo()
+      loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
 
     const stopVideo = ()=> {
-      console.log(player.getPlayerState());
-      player.stopVideo()
+      player.value.stopVideo()
     }
 
     const playPauseVideo = ()=> {
-      player.playVideo()
-      playerState.value = player.getPlayerState()
-      console.log(player.getPlayerState());
-      if(playerState.value == 2) player.playVideo()
-      if(playerState.value == 1) player.pauseVideo()
+      player.value.playVideo()
+      // playerState.value = player.value.getPlayerState()
+      store.dispatch('commitPlayerState',player.value.getPlayerState())
+      if(playerState.value == 2) player.value.playVideo()
+      if(playerState.value == 1) player.value.pauseVideo()
     }
 
     const nextVideo = ()=> {
-      // whichLoop.value = 3
-      isOneLoop.value = false
-      player.nextVideo()
-      ytId.index = playlist.data.indexOf(info.data.video_id) + 1
-      ytId.video = playlist.data[ytId.index]
-      console.log('nextlist',playlist.data);
-      if(ytId.index > playlist.data.length-1) {
-        ytId.index = 0
-        ytId.video = playlist.data[ytId.index]
+      store.dispatch('commitIsOneLoop',false)
+      player.value.nextVideo()
+      console.log('val',playlist);
+      store.dispatch('commitYtIdIndex',(playlist.value.indexOf(info.value.data.video_id) + 1))
+      console.log('ytid',ytId.value.index);
+      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+      console.log('state',store.state.playList.length);
+      if(ytId.value.index > playlist.value.length-1) {
+        store.dispatch('commitYtIdIndex',0)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
       } 
-      loadVideo()
-      loadPlaylist(ytId.list,ytId.index)      //單曲循環後確保清單播放
+      // loadVideo()
+      loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
     }
 
     const randomVideo = ()=> {
       isRandom.value = !isRandom.value
-      console.log(isRandom.value);
-      player.setShuffle(isRandom.value)
+      player.value.setShuffle(isRandom.value)
     }
 
     const oneLoop = ()=> {
-      isOneLoop.value = true
-      ytId.video = info.data.video_id
+      // isOneLoop.value = true
+      console.log('ll',playlist.value);
+      store.dispatch('commitIsOneLoop',true)
+      // ytId.value.video = info.value.data.video_id
+      store.dispatch('commitYtIdVideo',info.value.data.video_id)
     }
 
     const mute = ()=> {
-      if (player.isMuted()) {
-        player.unMute()
-        volume.value = player.getVolume()
+      if (player.value.isMuted()) {
+        player.value.unMute()
+        volume.value = player.value.getVolume()
       } else {
-        player.mute()
+        player.value.mute()
         volume.value = 0
       }
     }
@@ -102,10 +140,15 @@ export default {
     })
 
     const changeVolume = (val)=> {
-      player.unMute()
+      player.value.unMute()
       volume.value = val
-      player.setVolume(volume.value)
+      player.value.setVolume(volume.value)
     }
+
+    const buttonPlayPause = computed(()=> {
+      if(playerState.value == 2 || playerState.value == 3) return true
+      if(playerState.value == 1 ) return false
+    })
 
     return {
       currentTime,
@@ -122,7 +165,8 @@ export default {
       mute,
       volumeRange,
       changeVolume,
-      volume
+      volume,
+      buttonPlayPause
     }
   }
 }

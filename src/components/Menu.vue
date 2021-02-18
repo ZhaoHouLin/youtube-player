@@ -1,18 +1,21 @@
 <script>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
+import { apiGetCommonFn } from '../api'
 export default {
   setup() {
     const store = useStore()
+    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+
     const ytUrl = ref('')
     const isOpen = ref(false)
-    
+
     const ytId = computed(()=> {
       return store.getters.ytId
     })
-    const player = computed(()=> {
-      return store.getters.player
-    })
+    // const player = computed(()=> {
+    //   return store.getters.player
+    // })
 
     const handleOpen = ()=> {
       isOpen.value = !isOpen.value
@@ -23,7 +26,9 @@ export default {
       let filterVid = arr.filter((item)=> {
         return item.indexOf('v=') !== -1 || item.indexOf('youtu.be/') !== -1
       })
-      ytId.video = filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1]
+      // ytId.video = filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1]
+
+      store.dispatch('commitYtIdVideo',filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1])
       store.dispatch('commitIsRandom',false)
       // isRandom.value = false
     }
@@ -34,31 +39,19 @@ export default {
       if(ytUrl.value.indexOf('list=') !== -1){
         let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
         let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
-        ytId.list = filterListId[0].split('list=')[1]
+        // ytId.list = filterListId[0].split('list=')[1]
+        store.dispatch('commitYtIdList',filterListId[0].split('list=')[1])
 
         if (filterIndex.indexOf('index=')!==-1) {
-          ytId.index = filterIndex[0].split('index=')[1]-1
+          // ytId.index = filterIndex[0].split('index=')[1]-1
+          store.dispatch('commitYtIdIndex',filterIndex[0].split('index=')[1]-1)
         } else {
-          loadVideo(ytId.video)     //消除輸入另一個播放清單切換不過去的問題
+          loadVideo(ytId.value.video)     //消除輸入另一個播放清單切換不過去的問題
         }
-        loadPlaylist(ytId.list,ytId.index)
+        loadPlaylist(ytId.value.list,ytId.value.index)
       } else {
-        loadVideo(ytId.video)
+        loadVideo(ytId.value.video)
       }
-    }
-
-    const loadVideo = (id)=> {
-      player.loadVideoById({
-        videoId: id,
-      })
-    }
-
-    const loadPlaylist = (id,idx)=> {
-      player.loadPlaylist({
-        listType: 'playlist',
-        list: id,
-        index: idx
-      })  
     }
 
     return {
