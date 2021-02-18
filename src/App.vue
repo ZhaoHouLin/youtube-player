@@ -41,13 +41,7 @@ export default {
     const currentTime = ref(0)
     let ytUrl = ref('')
     const isOneLoop = ref(false)
-    // const whichLoop = ref(3)
     const isRandom = ref(false)
-    // https://www.youtube.com/watch?v=l4ZLQJgv-Q8&list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&index=3&ab_channel=CHMusicChannel
-
-    // https://www.youtube.com/watch?list=PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI&v=l4ZLQJgv-Q8&feature=emb_logo&ab_channel=CHMusicChannel
-
-    // https://www.youtube.com/watch?v=loxujxwIb5U&ab_channel=nearestevil
 
 
     const handleOpen = ()=> {
@@ -56,8 +50,10 @@ export default {
 
     const handleUrlVideoId = (arr)=> {
       console.log('arr',arr);
-      let filterVid = arr.filter((item)=> item.indexOf('v=') !==-1)
-      ytId.video = filterVid[0].split('v=')[1]
+      let filterVid = arr.filter((item)=> {
+        return item.indexOf('v=') !== -1 || item.indexOf('youtu.be/') !== -1
+      })
+      ytId.video = filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1]
       isRandom.value = false
     }
 
