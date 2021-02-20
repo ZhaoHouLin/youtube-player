@@ -71,9 +71,8 @@ export default {
   size(100%,8vh)
   background-color color-primary-dark
   flexCenter(flex-start,center,)
-  
+  z-index 100
   i
-    // border solid 1px #eee
     margin-right 1rem
     padding 0 1rem
     cursor pointer
@@ -81,15 +80,13 @@ export default {
     color color-secondary-dark
     font-size md
   .user-enter-url
-    // border solid 1px #eee
-    
-    size(0,0)
     display none
     input
       width 80%
-    // button
-    //   color color-secondary
-    //   width 20%
+    .submit
+      size(20%,auto)
+      button
+        color color-secondary
     &.open
       display block
       flexCenter()

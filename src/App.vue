@@ -153,6 +153,7 @@ Control
   text-align center
   flexCenter(center,center,column)
   size(100%,100vh)
+  overflow hidden
   
 #player
   size(100%,30vh)
@@ -161,7 +162,6 @@ Control
 .info
   flexCenter()
   size(100%,20vh)
-  // border solid 1px #222
   background-color color-primary-dark 
   overflow hidden
   position relative
