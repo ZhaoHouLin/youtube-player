@@ -172,7 +172,8 @@ export default {
 </script>
 
 <template lang='pug'>
-img(:src="loadVideoCover", alt="alt")
+.screen
+  img(:src="loadVideoCover", alt="alt")
 
 .progress-bar
   label {{formatTime(currentTime)}}
@@ -196,28 +197,39 @@ img(:src="loadVideoCover", alt="alt")
     i.fas.fa-undo
 
 .volume-range
-  button(@click='mute')
-    i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
-  input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
+  .volume
+    button(@click='mute')
+      i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
+  .range
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
 </template>
 
 <style lang='stylus'>
 @import '../css/style.styl'
 
-img
-  size(100%,40vh)
+.screen
+  // border 1px solid #222
+  background-color color-primary 
+  size(100%,60vh)
+  flexCenter()
+  img
+    size(100%,auto)
+
 .progress-bar
-  size(100%,auto)
-  border solid 1px #222
+  size(100%,4vh)
+  // border solid 1px #222
+  color color-secondary-dark
+  background-color color-primary-dark
   flexCenter()
   .bar
     size(70%,auto)
     margin 0 8px
 
 .control,.volume-range
-  size(100%,auto)
+  // size(100%,auto)
   flexCenter()
   button
+    // border 0.5px solid color-secondary-light
     outline none
     background-color color-primary-dark
     color color-secondary
@@ -225,15 +237,23 @@ img
     padding 8px
     i
       font-size md
-        
+.control
+  size(100%,auto)
+
 .volume-range
+  size(100%,auto)
   background-color color-primary-dark
   flexCenter(flex-start,center,)
-  button
-    size((100/6)%,auto)
-    i
-      font-size 1.5rem
-  input
-    // color color-primary-dark
-    size((100/6)*5%,0.5vh)
+  .volume
+    size((100/6)%,100%)
+    button
+      i
+        font-size 1.5rem
+  .range
+    // border 0.1px solid color-secondary-light
+    size((100/6)*5%,100%)
+    flexCenter()
+    input
+      // color color-primary-dark
+      size(90%,0.5vh)
 </style>

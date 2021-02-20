@@ -155,15 +155,14 @@ Control
   size(100%,100vh)
   
 #player
-  size(100%,40vh)
-  // display none
+  size(100%,30vh)
+  display none
 
-
-  
 .info
   flexCenter()
-  size(100%,10vh)
-  border solid 1px #222
+  size(100%,20vh)
+  // border solid 1px #222
+  background-color color-primary-dark 
   overflow hidden
   position relative
   a.marquee
