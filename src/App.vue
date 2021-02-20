@@ -1,5 +1,9 @@
 <script>
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref,  } from 'vue'
+import { useStore } from 'vuex'
+import Menu from '../src/components/Menu'
+import Control from '../src/components/Control'
+import { apiGetCommonFn } from '../src/api'
 
 // 高解析度大圖（1280 × 720）
 // http://img.youtube.com/vi/xxxxxxx/maxresdefault.jpg
@@ -17,208 +21,51 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 // http://img.youtube.com/vi/xxxxxxx/3.jpg
 
 export default {
-
+  components: {
+    Menu,
+    Control
+  },
   setup() {
+    const store = useStore()
 
-    let player = reactive()
-    let playerState = ref()
-
-    // const ytId = ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
-    const ytId = reactive({
-      list: '',
-      video: '',
-      index: 0
+    const player = computed(()=> {
+      return store.getters.player
     })
 
-    const isOpen = ref(false)
-
-    const playlist = reactive({
-      data: []
-    })
-    const info = reactive({data:''})
-    const volume = ref(50)
-    let duration = ref('00')
-    const currentTime = ref(0)
-    let ytUrl = ref('')
-    const isOneLoop = ref(false)
-    const isRandom = ref(false)
-
-
-    const handleOpen = ()=> {
-      isOpen.value = !isOpen.value
-    }
-
-    const handleUrlVideoId = (arr)=> {
-      console.log('arr',arr);
-      let filterVid = arr.filter((item)=> {
-        return item.indexOf('v=') !== -1 || item.indexOf('youtu.be/') !== -1
-      })
-      ytId.video = filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1]
-      isRandom.value = false
-    }
-
-    const urlGetId = ()=> {
-      let idHandleArray = ytUrl.value.split('&')
-      handleUrlVideoId(idHandleArray)
-      if(ytUrl.value.indexOf('list=') !== -1){
-        let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
-        let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
-        ytId.list = filterListId[0].split('list=')[1]
-
-        if (filterIndex.indexOf('index=')!==-1) {
-          ytId.index = filterIndex[0].split('index=')[1]-1
-        } else {
-          loadVideo(ytId.video)     //消除輸入另一個播放清單切換不過去的問題
-        }
-        loadPlaylist(ytId.list,ytId.index)
-      } else {
-        loadVideo(ytId.video)
-      }
-    }
-
-    const loadVideoCover = computed(()=> {
-       return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
+    const playerState = computed(()=> {
+      return store.getters.playerState
     })
 
-    const buttonPlayPause = computed(()=> {
-      if(playerState.value == 2 || playerState.value == 3) return true
-      if(playerState.value == 1 ) return false
+    const ytId = computed(()=> {
+      return store.getters.ytId
     })
-     
-    const onPlayerReady = (event)=> {
-      event.target.playVideo()
-    }
-
-    const volumeRange = computed(()=> {
-      if (volume.value > 0 && volume.value < 50) return 2
-      if (volume.value > 50 && volume.value < 70) return 3
-      if (volume.value > 70) return 4
-      if (volume.value == 0) {
-        return 1
-      } else {
-        return 2
-      }
-    })
-
-    const mute = ()=> {
-      if (player.isMuted()) {
-        player.unMute()
-        volume.value = player.getVolume()
-      } else {
-        player.mute()
-        volume.value = 0
-      }
-    }
-    const playPauseVideo = ()=> {
-      player.playVideo()
-      playerState.value = player.getPlayerState()
-      console.log(player.getPlayerState());
-      if(playerState.value == 2) player.playVideo()
-      if(playerState.value == 1) player.pauseVideo()
-    }
-
-    const pauseVideo = ()=> {
-      player.pauseVideo()
-    }
-
-    const stopVideo = ()=> {
-      console.log(player.getPlayerState());
-      player.stopVideo()
-    }
-
-    const nextVideo = ()=> {
-      // whichLoop.value = 3
-      isOneLoop.value = false
-      player.nextVideo()
-      ytId.index = playlist.data.indexOf(info.data.video_id) + 1
-      ytId.video = playlist.data[ytId.index]
-      console.log('nextlist',playlist.data);
-      if(ytId.index > playlist.data.length-1) {
-        ytId.index = 0
-        ytId.video = playlist.data[ytId.index]
-      } 
-      loadVideo()
-      loadPlaylist(ytId.list,ytId.index)      //單曲循環後確保清單播放
-    }
-
-    const previousVideo = ()=> {
-      // whichLoop.value = 3
-      isOneLoop.value = false
-      player.previousVideo()
-      ytId.index = playlist.data.indexOf(info.data.video_id) - 1
-      ytId.video = playlist.data[ytId.index]
-      if(ytId.index < 0) {
-        ytId.index = playlist.data.length-1
-        ytId.video = playlist.data[ytId.index]
-      }
-      loadVideo()
-      loadPlaylist(ytId.list,ytId.index) 
-    } 
-
-    const getPlaylist = ()=> {  
-      currentTimer()
-      duration.value = Math.floor(player.getDuration())
-      info.data = player.getVideoData()
-      info.videoUrl = player.getVideoUrl()
-      currentTime.value = player.getCurrentTime()
-      player.setVolume(volume.value)
-      playlist.data = player.getPlaylist()
-    }
-
-    const loadVideo = (id)=> {
-      player.loadVideoById({
-        videoId: id,
-      })
-    }
-
-    const loadPlaylist = (id,idx)=> {
-      player.loadPlaylist({
-        listType: 'playlist',
-        list: id,
-        index: idx
-      })  
-    }
-
-    const randomVideo = ()=> {
-      isRandom.value = !isRandom.value
-      console.log(isRandom.value);
-      player.setShuffle(isRandom.value)
-    }
-
-    const oneLoop = ()=> {
-      isOneLoop.value = true
-      ytId.video = info.data.video_id
-    }
-
-    // const listLoop = ()=> {
-    //   whichLoop.value = 2
-    //   // player.setLoop(true)
-    // }
-
-    const formatTime = (val)=> {
-      let dMinutes = '00'+Math.floor(val/60)
-      let dSeconds = '00'+Math.floor(val%60)
-      return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
-    }
     
-    const changeVolume = (val)=> {
-      player.unMute()
-      volume.value = val
-      player.setVolume(volume.value)
-    }
+    const info = computed(()=> {
+      return store.getters.info
+    })
 
-    const setCurrentTime = ()=> {
-      player.seekTo(currentTime.value,true)
-    }
+    
 
-    const currentTimer = ()=> {
-      setInterval(() => {
-        currentTime.value = Math.floor(player.getCurrentTime())
-      }, 1000);
+    const isOneLoop = computed(()=> {
+      return store.getters.isOneLoop
+    })
+
+    const { loadVideo, currentTimer, clearTimer } = apiGetCommonFn()
+
+    const getPlaylist = ()=> {
+      store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
+      let payload = {
+        data: player.value.getVideoData(),
+        videoUrl: player.value.getVideoUrl()
+      }
+      store.dispatch('commitInfo',payload)
+
+      store.dispatch('commitCurrentTime',player.value.getCurrentTime())
+      store.dispatch('commitPlaylist',player.value.getPlaylist())
     }
  
     const marqueeAnimate = computed(()=> {
-      if (playerState.value==3) {
+      if (playerState.value!==1) {
         return {
           'animation-name': `marquee-animate`,
           'animation-duration': `15s`,
@@ -229,69 +76,56 @@ export default {
       }
     })
 
+
+    // 播放器狀態數值:
+    // -1 – 未開始
+    // 0 – 已结束
+    // 1 – 正在播放
+    // 2 – 已暫停
+    // 3 – 正在緩冲
+    // 5 – 已插入視頻 
+    
     const onPlayerStateChange = (event)=> {
       if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
-        playerState.value = player.getPlayerState()
+        store.dispatch('commitPlayerState',player.value.getPlayerState())
         getPlaylist() 
       }
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
         getPlaylist() 
+        store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
+        store.dispatch('commitPlaylist',player.value.getPlaylist())
       }
-      if (event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
-        loadVideo(ytId.video)
+      if( event.data == 1 ) {
+        currentTimer()
+      } else {
+        clearTimer()
+      }
+      if ( event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
+        clearTimer()
+        loadVideo(ytId.value.video)
       } 
-      if ( event.data == YT.PlayerState.ENDED && !(isOneLoop.value) ) {
-        nextVideo()
-      }
     }
 
 
     const ytAPI = ()=> {
       window.onYouTubeIframeAPIReady = ()=> {
-        player = new YT.Player('player', {
+        let payload = new YT.Player('player', {
           events: {
             'onStateChange': onPlayerStateChange
           }
-        })     
+        })    
+        store.dispatch('commitPlayer' ,payload )
       }
     }
 
     onMounted(()=> {
       ytAPI()
-      // currentTimer()
-      
     })
 
     return {
-      player,
-      onPlayerReady,
-      playPauseVideo,
-      pauseVideo,
-      stopVideo,
-      nextVideo,
-      previousVideo,
-      loadPlaylist,
-      getPlaylist,
-      playlist,
-      volume,
-      changeVolume,
+      // onPlayerReady,
       info,
-      duration,
-      setCurrentTime,
-      currentTime,
-      formatTime,
-      ytUrl,
-      urlGetId,
-      loadVideoCover,
-      oneLoop,
-      randomVideo,
-      playerState,
-      buttonPlayPause,
-      mute,
-      volumeRange,
       marqueeAnimate,
-      handleOpen,
-      isOpen
     }
   }
 }
@@ -299,41 +133,10 @@ export default {
 
 
 <template lang='pug'>
-.menu
-  i(@click='handleOpen' :class='["fas",{"fa-bars": !isOpen},{"fa-times":isOpen}]')
-  .user-enter-url(:class='[{"open": isOpen}]')
-    input(type='text' v-model='ytUrl' placeholder='enter YouTube video url')
-    button(@click='urlGetId' ) send
 
-#player(ref='player')
-
-img(:src="loadVideoCover", alt="alt")
-
-.progress-bar
-  label {{formatTime(currentTime)}}
-  input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
-  label {{formatTime(duration)}}
-
-.control
-  button(@click='previousVideo')
-    i.fas.fa-step-backward
-  button(@click='stopVideo')
-    i.fas.fa-stop
-  button(@click='playPauseVideo')
-    i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
-  button(@click='nextVideo')
-    i.fas.fa-step-forward
-
-  button(@click='randomVideo')
-    i.fas.fa-random
-
-  button(@click='oneLoop' title='test')
-    i.fas.fa-undo
-
-.volume-range
-  button(@click='mute')
-    i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
-  input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )
+Menu
+#player
+Control
 
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
@@ -350,86 +153,16 @@ img(:src="loadVideoCover", alt="alt")
   text-align center
   flexCenter(center,center,column)
   size(100%,100vh)
-
-
-
-.menu
-  size(100%,8vh)
-  background-color color-primary-dark
-  flexCenter(flex-start,center,)
-  // padding 0 1rem
-  i
-    // border solid 1px #eee
-    margin-right 1rem
-    padding 0 1rem
-    cursor pointer
-    size(10%,auto)
-    color color-secondary-dark
-    font-size md
-  .user-enter-url
-    // border solid 1px #eee
-    flexCenter()
-    size(0,0)
-    // position absolute
-    // top 0px
-    display none
-    input
-      width 80%
-    button
-      color #eee
-      width 20%
-    &.open
-      display block
-      size(90%,3vh)
-      input
-        width 80%
-      button
-        color #eee
-        width 20%
   
 #player
-  size(100%,40vh)
-  // display none
+  size(100%,30vh)
+  display none
 
-img
-  size(100%,40vh)
-.progress-bar
-  size(100%,auto)
-  border solid 1px #222
-  flexCenter()
-  .bar
-    size(70%,auto)
-    margin 0 8px
-
-.control,.volume-range
-  size(100%,auto)
-  flexCenter()
-  button
-    outline none
-    background-color color-primary-dark
-    color color-secondary
-    size(100%,auto)
-    padding 8px
-    i
-      font-size md
-      
-        
-.volume-range
-  background-color color-primary-dark
-  flexCenter(flex-start,center,)
-  button
-    size((100/6)%,auto)
-    i
-      font-size 1.5rem
-  input
-    // color color-primary-dark
-    size((100/6)*5%,0.5vh)
-
-  
 .info
   flexCenter()
-  size(100%,10vh)
-  border solid 1px #222
+  size(100%,20vh)
+  // border solid 1px #222
+  background-color color-primary-dark 
   overflow hidden
   position relative
   a.marquee
