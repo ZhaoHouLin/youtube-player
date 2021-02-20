@@ -57,6 +57,17 @@ export default {
        return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
     })
 
+    const backgroundStyle = computed(()=> {
+      return {
+        'background-image': `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
+        'background-position': `center`,
+        'background-size': `cover`,
+        'background-repeat': 'no-repeat',
+        'filter': `blur(16px)`
+
+      }
+    })
+
     const previousVideo = ()=> {
       store.dispatch('commitIsOneLoop',false)
       player.value.previousVideo()
@@ -165,15 +176,19 @@ export default {
       volumeRange,
       changeVolume,
       volume,
-      buttonPlayPause
+      buttonPlayPause,
+      backgroundStyle
     }
   }
 }
 </script>
 
 <template lang='pug'>
+
+
 .screen
   img(:src="loadVideoCover", alt="alt")
+  .blur-background(:style='backgroundStyle')
 
 .progress-bar
   label {{formatTime(currentTime)}}
@@ -208,12 +223,19 @@ export default {
 @import '../css/style.styl'
 
 .screen
-  // border 1px solid #222
+  position relative
   background-color color-primary 
   size(100%,60vh)
+  padding 1vh
   flexCenter()
   img
-    size(100%,auto)
+    border-radius 4%
+    size(96%,auto)
+    z-index 100
+  .blur-background
+    position absolute
+    size(100%,50vh)
+  
 
 .progress-bar
   size(100%,4vh)
@@ -228,7 +250,6 @@ export default {
 .control,.volume-range
   flexCenter()
   button
-
     outline none
     background-color color-primary-dark
     color color-secondary
@@ -236,6 +257,7 @@ export default {
     padding 8px
     i
       font-size md
+
 .control
   size(100%,auto)
 
