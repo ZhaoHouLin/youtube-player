@@ -31,11 +31,13 @@ export default {
       handleUrlVideoId(idHandleArray)
       
       if(ytUrl.value.indexOf('list=') !== -1){
+        console.log('url',ytUrl.value.indexOf('list='));
         let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
         let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
+        console.log('filterListId',filterListId,'filterIndex',filterIndex);
         store.dispatch('commitYtIdList',filterListId[0].split('list=')[1])
         if (filterIndex[0].indexOf('index=') !== -1) {
-          store.dispatch('commitYtIdIndex',+(filterIndex[0].split('index=')[1]))
+          store.dispatch('commitYtIdIndex',(filterIndex[0].split('index=')[1])-1)
         } else {
           loadVideo(ytId.value.video)     //消除輸入另一個播放清單切換不過去的問題
         }

@@ -27,8 +27,6 @@ export default {
   },
   setup() {
     const store = useStore()
-    // let player = reactive()
-    // let playerState = ref()
 
     const player = computed(()=> {
       return store.getters.player
@@ -54,23 +52,6 @@ export default {
 
     const { loadVideo, currentTimer, clearTimer } = apiGetCommonFn()
 
-    // const { player,youtubeIframeAPI } = apiGetCommonFn()
-
-    // const ytId = ref('PLHxUjmov4Un9g0lbA20cFpbBlrPvk4OfI')
-
-    // const loadVideoCover = computed(()=> {
-    //    return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
-    // })
-
-    // const player = computed(()=> {
-    //   return store.getters.player
-    // })
-
-     
-    // const onPlayerReady = (event)=> {
-    //   event.target.playVideo()
-    // }
-
     const getPlaylist = ()=> {
       store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
       let payload = {
@@ -84,7 +65,7 @@ export default {
     }
  
     const marqueeAnimate = computed(()=> {
-      if (playerState.value==3) {
+      if (playerState.value!==1) {
         return {
           'animation-name': `marquee-animate`,
           'animation-duration': `15s`,
