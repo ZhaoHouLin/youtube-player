@@ -95,40 +95,34 @@ export default {
       }
     })
 
+
+    // 播放器狀態數值:
+    // -1 – 未開始
+    // 0 – 已结束
+    // 1 – 正在播放
+    // 2 – 已暫停
+    // 3 – 正在緩冲
+    // 5 – 已插入視頻 
+    
     const onPlayerStateChange = (event)=> {
       if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
-        // console.log('BUFFERING',YT.PlayerState.BUFFERING);
-        
         store.dispatch('commitPlayerState',player.value.getPlayerState())
-        // store.dispatch('commitIsPlaying',true)
         getPlaylist() 
       }
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
-        // console.log('ENDED & CUED',YT.PlayerState.ENDED,YT.PlayerState.CUED);
         getPlaylist() 
         store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
         store.dispatch('commitPlaylist',player.value.getPlaylist())
-        // clearTimer()
       }
-      if( event.data == YT.PlayerState.CUED && !isOneLoop.value ) {
-        // console.log('cue',YT.PlayerState.CUED);
-        // store.dispatch('commitIsPlaying',true)
-        // currentTimer()
-      }
-      if( (event.data == 1 ) && !isOneLoop.value ) {
-        // console.log('event data',event.data);
+      if( event.data == 1 ) {
         currentTimer()
       } else {
-        // console.log('event data',event.data);
         clearTimer()
       }
       if ( event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
+        clearTimer()
         loadVideo(ytId.value.video)
       } 
-      if ( event.data == YT.PlayerState.ENDED && !(isOneLoop.value) ) {
-        // console.log('ENDED',YT.PlayerState.ENDED , 'noOneLoop');
-        // nextVideo()
-      }
     }
 
 

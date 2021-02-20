@@ -23,7 +23,6 @@ export default createStore({
   mutations: {
     statePlayer(state,payload) {
       state.player = payload
-      console.log(state.player);
     },
     statePlayerState(state,value) {
       state.playerState = value
@@ -39,14 +38,12 @@ export default createStore({
     },
     stateYtIdIndex(state, index) {
       state.ytId.index = index
-      console.log('state index',state.ytId.index);
     },
     stateInfo(state,payload) {
       state.info = payload
     },
     stateIsPlaying(state, boolean) {
       state.isPlaying = boolean
-      console.log('playing',state.isPlaying);
     },
     stateIsOneLoop(state,boolean) {
       state.isOneLoop = boolean

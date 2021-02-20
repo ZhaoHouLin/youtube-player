@@ -13,9 +13,6 @@ export default {
     const ytId = computed(()=> {
       return store.getters.ytId
     })
-    // const player = computed(()=> {
-    //   return store.getters.player
-    // })
 
     const handleOpen = ()=> {
       isOpen.value = !isOpen.value
@@ -39,7 +36,6 @@ export default {
         store.dispatch('commitYtIdList',filterListId[0].split('list=')[1])
         if (filterIndex[0].indexOf('index=') !== -1) {
           store.dispatch('commitYtIdIndex',+(filterIndex[0].split('index=')[1]))
-          console.log('?',filterIndex[0].split('index=')[1]-1);
         } else {
           loadVideo(ytId.value.video)     //消除輸入另一個播放清單切換不過去的問題
         }

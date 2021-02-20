@@ -33,7 +33,6 @@ const commonFn = ()=> {
 
   const clearTimer = () => {
     clearInterval(timer)
-    console.log('clear');
   }
 
   return {

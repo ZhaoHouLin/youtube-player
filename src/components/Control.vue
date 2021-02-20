@@ -6,7 +6,7 @@ export default {
   setup() {
     const store = useStore()
 
-    const { loadVideo, loadPlaylist, currentTimer, clearTimer } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist } = apiGetCommonFn()
     
     const volume = ref(50)
 
@@ -74,6 +74,7 @@ export default {
 
     const stopVideo = ()=> {
       store.dispatch('commitCurrentTime', 0)
+      store.dispatch('commitPlayerState', 1)
       player.value.stopVideo()
     }
 
@@ -90,12 +91,10 @@ export default {
     }
 
     const nextVideo = ()=> {
-      console.log('next idx1',ytId.value.index);
       store.dispatch('commitIsOneLoop',false)
       player.value.nextVideo()
       store.dispatch('commitYtIdIndex',ytId.value.index+1)
       store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-      console.log('next idx2',ytId.value.index);
       if(ytId.value.index > playlist.value.length-1) {
         store.dispatch('commitYtIdIndex',0)
         store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
@@ -113,6 +112,7 @@ export default {
     const oneLoop = ()=> {
       store.dispatch('commitIsOneLoop',true)
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
+      console.log('oneLoop',store.getters.isOneLoop);
     }
 
     const mute = ()=> {
@@ -143,8 +143,11 @@ export default {
     }
 
     const buttonPlayPause = computed(()=> {
-      if(playerState.value == 2 || playerState.value == 3) return true
-      if(playerState.value == 1 ) return false
+      if(playerState.value == 1 ) {
+        return true
+      } else {
+        return false
+      }
     })
 
     return {
@@ -183,7 +186,7 @@ img(:src="loadVideoCover", alt="alt")
   button(@click='stopVideo')
     i.fas.fa-stop
   button(@click='playPauseVideo')
-    i(:class='["fas",{"fa-play":!buttonPlayPause},{"fa-pause":buttonPlayPause}]')
+    i(:class='["fas",{"fa-play": buttonPlayPause},{"fa-pause": !buttonPlayPause}]')
   button(@click='nextVideo')
     i.fas.fa-step-forward
 
