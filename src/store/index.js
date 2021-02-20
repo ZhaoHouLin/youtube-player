@@ -23,27 +23,30 @@ export default createStore({
   mutations: {
     statePlayer(state,payload) {
       state.player = payload
-      console.log('player',state.player);
+      console.log(state.player);
     },
     statePlayerState(state,value) {
       state.playerState = value
     },
     statePlaylist(state, data) {
       state.playlist = data
-      console.log('playlist',state.playlist);
     },
     stateYtIdVideo(state, vId) {
       state.ytId.video = vId
-      console.log('vid',state.ytId.video);
     },
     stateYtIdList(state, list) {
       state.ytId.list = list
     },
     stateYtIdIndex(state, index) {
       state.ytId.index = index
+      console.log('state index',state.ytId.index);
     },
     stateInfo(state,payload) {
       state.info = payload
+    },
+    stateIsPlaying(state, boolean) {
+      state.isPlaying = boolean
+      console.log('playing',state.isPlaying);
     },
     stateIsOneLoop(state,boolean) {
       state.isOneLoop = boolean
@@ -111,6 +114,9 @@ export default createStore({
     },
     isOneLoop(state) {
       return state.isOneLoop
+    },
+    isRandom(state) {
+      return state.isRandom
     },
     currentTime(state) {
       return state.currentTime

@@ -22,29 +22,24 @@ export default {
     }
 
     const handleUrlVideoId = (arr)=> {
-      console.log('arr',arr);
       let filterVid = arr.filter((item)=> {
         return item.indexOf('v=') !== -1 || item.indexOf('youtu.be/') !== -1
       })
-      // ytId.video = filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1]
-
       store.dispatch('commitYtIdVideo',filterVid[0].split('v=')[1] || filterVid[0].split('youtu.be/')[1])
       store.dispatch('commitIsRandom',false)
-      // isRandom.value = false
     }
 
     const urlGetId = ()=> {
       let idHandleArray = ytUrl.value.split('&')
       handleUrlVideoId(idHandleArray)
+      
       if(ytUrl.value.indexOf('list=') !== -1){
         let filterListId = idHandleArray.filter((item)=> item.indexOf('list=') !==-1)
         let filterIndex = idHandleArray.filter((item)=> item.indexOf('index=') !==-1)
-        // ytId.list = filterListId[0].split('list=')[1]
         store.dispatch('commitYtIdList',filterListId[0].split('list=')[1])
-
-        if (filterIndex.indexOf('index=')!==-1) {
-          // ytId.index = filterIndex[0].split('index=')[1]-1
-          store.dispatch('commitYtIdIndex',filterIndex[0].split('index=')[1]-1)
+        if (filterIndex[0].indexOf('index=') !== -1) {
+          store.dispatch('commitYtIdIndex',+(filterIndex[0].split('index=')[1]))
+          console.log('?',filterIndex[0].split('index=')[1]-1);
         } else {
           loadVideo(ytId.value.video)     //消除輸入另一個播放清單切換不過去的問題
         }

@@ -6,10 +6,9 @@ export default {
   setup() {
     const store = useStore()
 
-    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist, currentTimer, clearTimer } = apiGetCommonFn()
     
     const volume = ref(50)
-
 
     const ytId = computed(()=> {
       return store.getters.ytId
@@ -21,12 +20,15 @@ export default {
       return store.getters.playerState
     })
     const playlist = computed(()=> {
-      return store.getters.playList
+      return store.getters.playlist
     })
     const info = computed(()=> {
       return store.getters.info
     })
-    // const playlist = store.state.playList
+
+    const isRandom = computed(()=> {
+      return store.getters.isRandom
+    })
 
     const currentTime = computed({                  //雙向綁定vuex寫法
       set(val) {
@@ -55,66 +57,61 @@ export default {
        return `http://img.youtube.com/vi/${ytId.video}/maxresdefault.jpg`
     })
 
-
     const previousVideo = ()=> {
-      // whichLoop.value = 3
-      // isOneLoop.value = false
       store.dispatch('commitIsOneLoop',false)
-      // store.dispatch('commitPlaylist',player.value.getPlaylist())
       player.value.previousVideo()
-      // ytId.value.index = playlist.value.indexOf(info.value.data.video_id) - 1
-      // ytId.value.video = playlist.value[ytId.value.index]
-      
-      store.dispatch('commitYtIdIndex',(playlist.value.indexOf(info.value.data.video_id) - 1))
-      console.log('0?',playlist.value[ytId.value.index]);
-      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+      store.dispatch('commitYtIdIndex',ytId.value.index-1)
+      let idx = ytId.value.index
+      store.dispatch('commitYtIdVideo',playlist.value[idx])
 
       if(ytId.value.index < 0) {
-        store.dispatch('commitYtIdIndex',playlist.value.length-1)
-        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+        store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
+        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
       }
-      // loadVideo()
+      loadVideo()
       loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
 
     const stopVideo = ()=> {
+      store.dispatch('commitCurrentTime', 0)
       player.value.stopVideo()
     }
 
     const playPauseVideo = ()=> {
       player.value.playVideo()
-      // playerState.value = player.value.getPlayerState()
       store.dispatch('commitPlayerState',player.value.getPlayerState())
-      if(playerState.value == 2) player.value.playVideo()
-      if(playerState.value == 1) player.value.pauseVideo()
+
+      if(playerState.value == 2) {
+        player.value.playVideo()
+      }
+      if(playerState.value == 1) {
+        player.value.pauseVideo()
+      }
     }
 
     const nextVideo = ()=> {
+      console.log('next idx1',ytId.value.index);
       store.dispatch('commitIsOneLoop',false)
       player.value.nextVideo()
-      console.log('val',playlist);
-      store.dispatch('commitYtIdIndex',(playlist.value.indexOf(info.value.data.video_id) + 1))
-      console.log('ytid',ytId.value.index);
+      store.dispatch('commitYtIdIndex',ytId.value.index+1)
       store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-      console.log('state',store.state.playList.length);
+      console.log('next idx2',ytId.value.index);
       if(ytId.value.index > playlist.value.length-1) {
         store.dispatch('commitYtIdIndex',0)
-        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
       } 
-      // loadVideo()
+      loadVideo()
       loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
     }
 
     const randomVideo = ()=> {
-      isRandom.value = !isRandom.value
+      store.dispatch('commitIsRandom', !isRandom.value)
       player.value.setShuffle(isRandom.value)
+      console.log(isRandom.value);
     }
 
     const oneLoop = ()=> {
-      // isOneLoop.value = true
-      console.log('ll',playlist.value);
       store.dispatch('commitIsOneLoop',true)
-      // ytId.value.video = info.value.data.video_id
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
     }
 

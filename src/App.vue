@@ -41,17 +41,18 @@ export default {
     const ytId = computed(()=> {
       return store.getters.ytId
     })
-    const playlist = computed(()=> {
-      return store.getters.playList
-    })
+    
     const info = computed(()=> {
       return store.getters.info
     })
+
+    
+
     const isOneLoop = computed(()=> {
       return store.getters.isOneLoop
     })
 
-    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+    const { loadVideo, currentTimer, clearTimer } = apiGetCommonFn()
 
     // const { player,youtubeIframeAPI } = apiGetCommonFn()
 
@@ -65,17 +66,12 @@ export default {
     //   return store.getters.player
     // })
 
-    // const buttonPlayPause = computed(()=> {
-    //   if(playerState.value == 2 || playerState.value == 3) return true
-    //   if(playerState.value == 1 ) return false
-    // })
      
-    const onPlayerReady = (event)=> {
-      event.target.playVideo()
-    }
+    // const onPlayerReady = (event)=> {
+    //   event.target.playVideo()
+    // }
 
-    const getPlaylist = ()=> {  
-      currentTimer()
+    const getPlaylist = ()=> {
       store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
       let payload = {
         data: player.value.getVideoData(),
@@ -85,14 +81,6 @@ export default {
 
       store.dispatch('commitCurrentTime',player.value.getCurrentTime())
       store.dispatch('commitPlaylist',player.value.getPlaylist())
-      // console.log('ll1',store.getters.playlist.length);
-
-    }
-
-    const currentTimer = ()=> {
-      setInterval(() => {
-        store.dispatch('commitCurrentTime',Math.floor(player.value.getCurrentTime()))
-      }, 1000);
     }
  
     const marqueeAnimate = computed(()=> {
@@ -109,19 +97,37 @@ export default {
 
     const onPlayerStateChange = (event)=> {
       if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
-        // playerState.value = player.value.getPlayerState()
+        // console.log('BUFFERING',YT.PlayerState.BUFFERING);
+        
         store.dispatch('commitPlayerState',player.value.getPlayerState())
+        // store.dispatch('commitIsPlaying',true)
         getPlaylist() 
       }
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
+        // console.log('ENDED & CUED',YT.PlayerState.ENDED,YT.PlayerState.CUED);
         getPlaylist() 
+        store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
+        store.dispatch('commitPlaylist',player.value.getPlaylist())
+        // clearTimer()
+      }
+      if( event.data == YT.PlayerState.CUED && !isOneLoop.value ) {
+        // console.log('cue',YT.PlayerState.CUED);
+        // store.dispatch('commitIsPlaying',true)
+        // currentTimer()
+      }
+      if( (event.data == 1 ) && !isOneLoop.value ) {
+        // console.log('event data',event.data);
+        currentTimer()
+      } else {
+        // console.log('event data',event.data);
+        clearTimer()
       }
       if ( event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
         loadVideo(ytId.value.video)
       } 
       if ( event.data == YT.PlayerState.ENDED && !(isOneLoop.value) ) {
-        nextVideo()
-        // getPlaylist()
+        // console.log('ENDED',YT.PlayerState.ENDED , 'noOneLoop');
+        // nextVideo()
       }
     }
 
@@ -142,7 +148,7 @@ export default {
     })
 
     return {
-      onPlayerReady,
+      // onPlayerReady,
       info,
       marqueeAnimate,
     }

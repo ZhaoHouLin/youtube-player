@@ -5,12 +5,13 @@ const commonFn = ()=> {
 
   const store = useStore()
 
+  let timer = null
+
   const player = computed(() => {
     return store.getters.player
   })
 
   const loadVideo = (id) => {
-    console.log('id',id);
     player.value.loadVideoById({
       videoId: id,
     })
@@ -24,12 +25,24 @@ const commonFn = ()=> {
     })
   }
 
+  const currentTimer = () => {
+    timer = setInterval(() => {
+      store.dispatch('commitCurrentTime', Math.floor(player.value.getCurrentTime()))
+    }, 1000);
+  }
+
+  const clearTimer = () => {
+    clearInterval(timer)
+    console.log('clear');
+  }
+
   return {
     loadVideo,
-    loadPlaylist
+    loadPlaylist,
+    currentTimer,
+    clearTimer
   }
 }
-
 
 export const getCommonFn = commonFn
 
