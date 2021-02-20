@@ -226,10 +226,9 @@ export default {
     margin 0 8px
 
 .control,.volume-range
-  // size(100%,auto)
   flexCenter()
   button
-    // border 0.5px solid color-secondary-light
+
     outline none
     background-color color-primary-dark
     color color-secondary
@@ -250,10 +249,13 @@ export default {
       i
         font-size 1.5rem
   .range
-    // border 0.1px solid color-secondary-light
     size((100/6)*5%,100%)
     flexCenter()
     input
-      // color color-primary-dark
       size(90%,0.5vh)
+
+@media screen and (min-width 720px)
+  .screen
+    img
+      size(auto,100%)
 </style>
