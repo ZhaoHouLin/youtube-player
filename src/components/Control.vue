@@ -115,6 +115,7 @@ export default {
     const randomVideo = ()=> {
       store.dispatch('commitIsRandom', !isRandom.value)
       store.dispatch('commitIsOneLoop',false)
+      loadPlaylist(ytId.value.list,ytId.value.index)
       console.log(isRandom.value);
     }
 
