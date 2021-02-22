@@ -70,30 +70,27 @@ export default {
 
     const previousVideo = ()=> {
       store.dispatch('commitIsOneLoop',false)
-      player.value.previousVideo()
-      store.dispatch('commitYtIdIndex',ytId.value.index-1)
-      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+      if(isRandom.value) {
+        let random = Math.floor(Math.random()*player.value.getPlaylist().length)
+        console.log('random',random);
+        store.dispatch('commitYtIdIndex',random)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+        player.value.previousVideo()
+      } else {
+        store.dispatch('commitYtIdIndex',ytId.value.index-1)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+  
+        if(ytId.value.index < 0) {
+          store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
+          store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
+        }
 
-      if(ytId.value.index < 0) {
-        store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
-        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
       }
+
       loadVideo()
       loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
 
-    // const nextVideo = ()=> {
-    //   store.dispatch('commitIsOneLoop',false)
-    //   player.value.nextVideo()
-    //   store.dispatch('commitYtIdIndex',ytId.value.index+1)
-    //   store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-    //   if(ytId.value.index > playlist.value.length-1) {
-    //     store.dispatch('commitYtIdIndex',0)
-    //     store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
-    //   } 
-    //   loadVideo()
-    //   loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
-    // }
 
     const stopVideo = ()=> {
       store.dispatch('commitCurrentTime', 0)
@@ -115,12 +112,13 @@ export default {
 
     const randomVideo = ()=> {
       store.dispatch('commitIsRandom', !isRandom.value)
-      player.value.setShuffle(isRandom.value)
+      store.dispatch('commitIsOneLoop',false)
       console.log(isRandom.value);
     }
 
     const oneLoop = ()=> {
       store.dispatch('commitIsOneLoop',true)
+      store.dispatch('commitIsRandom', false)
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
       console.log('oneLoop',store.getters.isOneLoop);
     }
