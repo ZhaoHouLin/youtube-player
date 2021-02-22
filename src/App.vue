@@ -71,6 +71,7 @@ export default {
       if (playerState.value!==1) {
         return {
           'animation-name': `marquee-animate`,
+          'animation-delay': `-1s`,
           'animation-duration': `15s`,
           'animation-iteration-count': `infinite`,
           'animation-timing-function': `linear`,
@@ -169,7 +170,7 @@ Control
   
 #player
   size(100%,30vh)
-  // display none
+  display none
 
 .info
   flexCenter()
@@ -181,16 +182,14 @@ Control
     white-space nowrap 
     position absolute
     color color-secondary
-    size(100%,auto)
+    size(auto,auto)
      
 
 @keyframes marquee-animate
   0%
-    left 0%
-  50%
-    left -100%
+    transform translateX(-100%)
   100%
-    left 0%
+    transform translateX(100%)
 
 </style>
   

@@ -233,14 +233,14 @@ export default {
     border-radius 4%
     size(96%,auto)
     z-index 100
-  // .blur-background
-  //   position absolute
-  //   size(100%,50vh)
+    box-shadow 2px 2px 2px 2px color-primary-dark
+  .blur-background
+    position absolute
+    size(100%,50vh)
   
 
 .progress-bar
   size(100%,4vh)
-  // border solid 1px #222
   color color-secondary-dark
   background-color color-primary-dark
   flexCenter()
