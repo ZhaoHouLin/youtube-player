@@ -202,7 +202,7 @@ export default {
 </script>
 
 <template lang='pug'>
-
+#player
 
 .screen
   img(:src="loadVideoCover", alt="alt")
@@ -243,6 +243,9 @@ export default {
 <style lang='stylus'>
 @import '../css/style.styl'
 
+#player
+  size(100%,60vh)
+  display none
 .screen
   position relative
   background-color color-primary 

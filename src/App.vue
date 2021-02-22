@@ -111,7 +111,7 @@ export default {
 <template lang='pug'>
 
 Menu
-#player
+
 Control
 
 </template>
@@ -126,9 +126,7 @@ Control
   size(100%,100vh)
   overflow hidden
   
-#player
-  size(100%,60vh)
-  display none
+
      
 </style>
   
