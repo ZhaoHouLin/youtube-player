@@ -130,12 +130,5 @@ Control
   size(100%,60vh)
   display none
      
-
-@keyframes marquee-animate
-  0%
-    transform translateX(-100%)
-  100%
-    transform translateX(100%)
-
 </style>
   

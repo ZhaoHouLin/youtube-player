@@ -316,6 +316,12 @@ export default {
     color color-secondary
     size(auto,auto)
 
+@keyframes marquee-animate
+  0%
+    transform translateX(-100%)
+  100%
+    transform translateX(100%)
+
 @media screen and (min-width 720px)
   .screen
     img
