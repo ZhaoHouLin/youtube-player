@@ -6,7 +6,7 @@ export default {
   setup() {
     const store = useStore()
 
-    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist, nextVideo} = apiGetCommonFn()
     
     const volume = ref(50)
 
@@ -25,7 +25,9 @@ export default {
     const info = computed(()=> {
       return store.getters.info
     })
-
+    const isOneLoop = computed(()=> {
+      return store.getters.isOneLoop
+    })
     const isRandom = computed(()=> {
       return store.getters.isRandom
     })
@@ -57,32 +59,40 @@ export default {
        return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
     })
 
+    const backgroundStyle = computed(()=> {
+      return {
+        'background-image': `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
+        'background-position': `center`,
+        'background-size': `cover`,
+        'background-repeat': 'no-repeat',
+        'filter': `blur(16px)`
+
+      }
+    })
+
     const previousVideo = ()=> {
       store.dispatch('commitIsOneLoop',false)
-      player.value.previousVideo()
-      store.dispatch('commitYtIdIndex',ytId.value.index-1)
-      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+      if(isRandom.value) {
+        let random = Math.floor(Math.random()*player.value.getPlaylist().length)
+        console.log('random',random);
+        store.dispatch('commitYtIdIndex',random)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+        player.value.previousVideo()
+      } else {
+        store.dispatch('commitYtIdIndex',ytId.value.index-1)
+        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+  
+        if(ytId.value.index < 0) {
+          store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
+          store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
+        }
 
-      if(ytId.value.index < 0) {
-        store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
-        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
       }
+
       loadVideo()
       loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
 
-    const nextVideo = ()=> {
-      store.dispatch('commitIsOneLoop',false)
-      player.value.nextVideo()
-      store.dispatch('commitYtIdIndex',ytId.value.index+1)
-      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-      if(ytId.value.index > playlist.value.length-1) {
-        store.dispatch('commitYtIdIndex',0)
-        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
-      } 
-      loadVideo()
-      loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
-    }
 
     const stopVideo = ()=> {
       store.dispatch('commitCurrentTime', 0)
@@ -104,12 +114,14 @@ export default {
 
     const randomVideo = ()=> {
       store.dispatch('commitIsRandom', !isRandom.value)
-      player.value.setShuffle(isRandom.value)
+      store.dispatch('commitIsOneLoop',false)
+      loadPlaylist(ytId.value.list,ytId.value.index)
       console.log(isRandom.value);
     }
 
     const oneLoop = ()=> {
-      store.dispatch('commitIsOneLoop',true)
+      store.dispatch('commitIsOneLoop',!isOneLoop.value)
+      store.dispatch('commitIsRandom', false)
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
       console.log('oneLoop',store.getters.isOneLoop);
     }
@@ -149,6 +161,19 @@ export default {
       }
     })
 
+    const marqueeAnimate = computed(()=> {
+      if (playerState.value!==1) {
+        return {
+          'animation-name': `marquee-animate`,
+          'animation-delay': `-1s`,
+          'animation-duration': `15s`,
+          'animation-iteration-count': `infinite`,
+          'animation-timing-function': `linear`,
+          'animation-direction': `alternate`
+        }
+      }
+    })
+
     return {
       currentTime,
       setCurrentTime,
@@ -165,15 +190,23 @@ export default {
       volumeRange,
       changeVolume,
       volume,
-      buttonPlayPause
+      buttonPlayPause,
+      backgroundStyle,
+      isOneLoop,
+      isRandom,
+      info,
+      marqueeAnimate
     }
   }
 }
 </script>
 
 <template lang='pug'>
+#player
+
 .screen
   img(:src="loadVideoCover", alt="alt")
+  .blur-background(:style='backgroundStyle')
 
 .progress-bar
   label {{formatTime(currentTime)}}
@@ -189,35 +222,51 @@ export default {
     i(:class='["fas",{"fa-play": buttonPlayPause},{"fa-pause": !buttonPlayPause}]')
   button(@click='nextVideo')
     i.fas.fa-step-forward
-
-  button(@click='randomVideo')
+  button(@click='randomVideo'  :class='["random",{"active": isRandom}]')
     i.fas.fa-random
-
-  button(@click='oneLoop' title='test')
+  button(@click='oneLoop' title='test' :class='["loop",{"active": isOneLoop}]')
     i.fas.fa-undo
 
 .volume-range
   .volume
-    button(@click='mute')
+    button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range
     input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
+
+.info
+  a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
+    h3 {{info.data.title}} 
+
 </template>
 
 <style lang='stylus'>
 @import '../css/style.styl'
 
+#player
+  size(100%,60vh)
+  display none
 .screen
-  // border 1px solid #222
+  position relative
   background-color color-primary 
   size(100%,60vh)
+  padding 1vh
   flexCenter()
+  // display none
   img
-    size(100%,auto)
+    border-radius 4%
+    size(96%,auto)
+    z-index 100
+    box-shadow 2px 2px 2px 2px color-primary-dark
+    cursor pointer
+
+  .blur-background
+    position absolute
+    size(100%,50vh)
+  
 
 .progress-bar
   size(100%,4vh)
-  // border solid 1px #222
   color color-secondary-dark
   background-color color-primary-dark
   flexCenter()
@@ -228,7 +277,6 @@ export default {
 .control,.volume-range
   flexCenter()
   button
-
     outline none
     background-color color-primary-dark
     color color-secondary
@@ -236,8 +284,13 @@ export default {
     padding 8px
     i
       font-size md
+
 .control
   size(100%,auto)
+  .random,.loop
+    &.active
+      background-color color-secondary
+      color  color-primary-dark
 
 .volume-range
   size(100%,auto)
@@ -253,6 +306,24 @@ export default {
     flexCenter()
     input
       size(90%,0.5vh)
+
+.info
+  flexCenter()
+  size(100%,20vh)
+  background-color color-primary-dark 
+  overflow hidden
+  position relative
+  a.marquee
+    white-space nowrap 
+    position absolute
+    color color-secondary
+    size(auto,auto)
+
+@keyframes marquee-animate
+  0%
+    transform translateX(-100%)
+  100%
+    transform translateX(100%)
 
 @media screen and (min-width 720px)
   .screen

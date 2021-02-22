@@ -23,6 +23,7 @@ export default createStore({
   mutations: {
     statePlayer(state,payload) {
       state.player = payload
+      console.log('player',state.player);
     },
     statePlayerState(state,value) {
       state.playerState = value

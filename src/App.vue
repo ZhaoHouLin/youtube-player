@@ -32,25 +32,15 @@ export default {
       return store.getters.player
     })
 
-    const playerState = computed(()=> {
-      return store.getters.playerState
-    })
-
     const ytId = computed(()=> {
       return store.getters.ytId
     })
     
-    const info = computed(()=> {
-      return store.getters.info
-    })
-
-    
-
     const isOneLoop = computed(()=> {
       return store.getters.isOneLoop
     })
 
-    const { loadVideo, currentTimer, clearTimer } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist, currentTimer, clearTimer, nextVideo } = apiGetCommonFn()
 
     const getPlaylist = ()=> {
       store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
@@ -59,22 +49,9 @@ export default {
         videoUrl: player.value.getVideoUrl()
       }
       store.dispatch('commitInfo',payload)
-
       store.dispatch('commitCurrentTime',player.value.getCurrentTime())
       store.dispatch('commitPlaylist',player.value.getPlaylist())
     }
- 
-    const marqueeAnimate = computed(()=> {
-      if (playerState.value!==1) {
-        return {
-          'animation-name': `marquee-animate`,
-          'animation-duration': `15s`,
-          'animation-iteration-count': `infinite`,
-          'animation-timing-function': `linear`,
-          'animation-direction': `alternate`
-        }
-      }
-    })
 
 
     // 播放器狀態數值:
@@ -93,17 +70,19 @@ export default {
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
         getPlaylist() 
         store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
-        store.dispatch('commitPlaylist',player.value.getPlaylist())
       }
       if( event.data == 1 ) {
         currentTimer()
       } else {
         clearTimer()
       }
-      if ( event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
+      if ( event.data == YT.PlayerState.ENDED && isOneLoop.value ) {
         clearTimer()
         loadVideo(ytId.value.video)
-      } 
+      }
+      if ( event.data == YT.PlayerState.ENDED && !isOneLoop.value ) {
+        nextVideo()
+      }
     }
 
 
@@ -123,9 +102,6 @@ export default {
     })
 
     return {
-      // onPlayerReady,
-      info,
-      marqueeAnimate,
     }
   }
 }
@@ -135,14 +111,9 @@ export default {
 <template lang='pug'>
 
 Menu
-#player
+
 Control
 
-.info
-  a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
-    h3 {{info.data.title}} 
-
-  
 </template>
 
 <style lang="stylus">
@@ -155,30 +126,7 @@ Control
   size(100%,100vh)
   overflow hidden
   
-#player
-  size(100%,30vh)
-  display none
 
-.info
-  flexCenter()
-  size(100%,20vh)
-  background-color color-primary-dark 
-  overflow hidden
-  position relative
-  a.marquee
-    white-space nowrap 
-    position absolute
-    color color-secondary
-    size(100%,auto)
      
-
-@keyframes marquee-animate
-  0%
-    left 0%
-  50%
-    left -100%
-  100%
-    left 0%
-
 </style>
   
