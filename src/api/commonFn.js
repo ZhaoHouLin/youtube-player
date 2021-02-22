@@ -8,7 +8,7 @@ const commonFn = ()=> {
   const ytId = computed(() => {
     return store.getters.ytId
   })
-  
+
   const playlist = computed(() => {
     return store.getters.playlist
   })

@@ -96,7 +96,6 @@ export default {
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
         getPlaylist() 
         store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
-        store.dispatch('commitPlaylist',player.value.getPlaylist())
         // player.value.nextVideo()
         // loadPlaylist(ytId.value.list,ytId.value.index) 
         // store.dispatch('commitYtIdIndex',player.value.getPlaylistIndex)
