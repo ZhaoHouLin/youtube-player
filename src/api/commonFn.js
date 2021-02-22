@@ -5,6 +5,14 @@ const commonFn = ()=> {
 
   const store = useStore()
 
+  const ytId = computed(() => {
+    return store.getters.ytId
+  })
+  
+  const playlist = computed(() => {
+    return store.getters.playlist
+  })
+
   let timer = null
 
   const player = computed(() => {
@@ -35,11 +43,25 @@ const commonFn = ()=> {
     clearInterval(timer)
   }
 
+  const nextVideo = () => {
+    store.dispatch('commitIsOneLoop', false)
+    player.value.nextVideo()
+    store.dispatch('commitYtIdIndex', ytId.value.index + 1)
+    store.dispatch('commitYtIdVideo', playlist.value[ytId.value.index])
+    if (ytId.value.index > playlist.value.length - 1) {
+      store.dispatch('commitYtIdIndex', 0)
+      store.dispatch('commitYtIdVideo', player.value.getPlaylist()[0])
+    }
+    loadVideo()
+    loadPlaylist(ytId.value.list, ytId.value.index)      //單曲循環後確保清單播放
+  }
+
   return {
     loadVideo,
     loadPlaylist,
     currentTimer,
-    clearTimer
+    clearTimer,
+    nextVideo
   }
 }
 

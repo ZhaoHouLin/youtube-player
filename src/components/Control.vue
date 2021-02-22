@@ -6,7 +6,7 @@ export default {
   setup() {
     const store = useStore()
 
-    const { loadVideo, loadPlaylist } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist, nextVideo} = apiGetCommonFn()
     
     const volume = ref(50)
 
@@ -82,18 +82,18 @@ export default {
       loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
 
-    const nextVideo = ()=> {
-      store.dispatch('commitIsOneLoop',false)
-      player.value.nextVideo()
-      store.dispatch('commitYtIdIndex',ytId.value.index+1)
-      store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-      if(ytId.value.index > playlist.value.length-1) {
-        store.dispatch('commitYtIdIndex',0)
-        store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
-      } 
-      loadVideo()
-      loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
-    }
+    // const nextVideo = ()=> {
+    //   store.dispatch('commitIsOneLoop',false)
+    //   player.value.nextVideo()
+    //   store.dispatch('commitYtIdIndex',ytId.value.index+1)
+    //   store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+    //   if(ytId.value.index > playlist.value.length-1) {
+    //     store.dispatch('commitYtIdIndex',0)
+    //     store.dispatch('commitYtIdVideo',player.value.getPlaylist()[0])
+    //   } 
+    //   loadVideo()
+    //   loadPlaylist(ytId.value.list,ytId.value.index)      //單曲循環後確保清單播放
+    // }
 
     const stopVideo = ()=> {
       store.dispatch('commitCurrentTime', 0)
@@ -232,9 +232,9 @@ export default {
     border-radius 4%
     size(96%,auto)
     z-index 100
-  .blur-background
-    position absolute
-    size(100%,50vh)
+  // .blur-background
+  //   position absolute
+  //   size(100%,50vh)
   
 
 .progress-bar

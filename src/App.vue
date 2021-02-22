@@ -36,6 +36,10 @@ export default {
       return store.getters.playerState
     })
 
+    const playlist = computed(()=> {
+      return store.getters.playlist
+    })
+
     const ytId = computed(()=> {
       return store.getters.ytId
     })
@@ -50,7 +54,7 @@ export default {
       return store.getters.isOneLoop
     })
 
-    const { loadVideo, currentTimer, clearTimer } = apiGetCommonFn()
+    const { loadVideo, loadPlaylist, currentTimer, clearTimer, nextVideo } = apiGetCommonFn()
 
     const getPlaylist = ()=> {
       store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
@@ -59,7 +63,6 @@ export default {
         videoUrl: player.value.getVideoUrl()
       }
       store.dispatch('commitInfo',payload)
-
       store.dispatch('commitCurrentTime',player.value.getCurrentTime())
       store.dispatch('commitPlaylist',player.value.getPlaylist())
     }
@@ -94,16 +97,26 @@ export default {
         getPlaylist() 
         store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
         store.dispatch('commitPlaylist',player.value.getPlaylist())
+        // player.value.nextVideo()
+        // loadPlaylist(ytId.value.list,ytId.value.index) 
+        // store.dispatch('commitYtIdIndex',player.value.getPlaylistIndex)
+        // store.dispatch('commitYtIdVideo',playlist.value[player.value.getPlaylistIndex])
       }
       if( event.data == 1 ) {
         currentTimer()
       } else {
         clearTimer()
       }
-      if ( event.data == YT.PlayerState.ENDED && (isOneLoop.value) ) {
+      if ( event.data == YT.PlayerState.ENDED && isOneLoop.value ) {
         clearTimer()
         loadVideo(ytId.value.video)
-      } 
+      }
+      if ( event.data == YT.PlayerState.ENDED && !isOneLoop.value ) {
+        nextVideo()
+        // clearTimer()
+        // store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+        // loadVideo(ytId.value.video)
+      }
     }
 
 
@@ -157,7 +170,7 @@ Control
   
 #player
   size(100%,30vh)
-  display none
+  // display none
 
 .info
   flexCenter()
