@@ -25,7 +25,9 @@ export default {
     const info = computed(()=> {
       return store.getters.info
     })
-
+    const isOneLoop = computed(()=> {
+      return store.getters.isOneLoop
+    })
     const isRandom = computed(()=> {
       return store.getters.isRandom
     })
@@ -117,7 +119,7 @@ export default {
     }
 
     const oneLoop = ()=> {
-      store.dispatch('commitIsOneLoop',true)
+      store.dispatch('commitIsOneLoop',!isOneLoop.value)
       store.dispatch('commitIsRandom', false)
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
       console.log('oneLoop',store.getters.isOneLoop);
@@ -175,7 +177,9 @@ export default {
       changeVolume,
       volume,
       buttonPlayPause,
-      backgroundStyle
+      backgroundStyle,
+      isOneLoop,
+      isRandom,
     }
   }
 }
@@ -202,16 +206,14 @@ export default {
     i(:class='["fas",{"fa-play": buttonPlayPause},{"fa-pause": !buttonPlayPause}]')
   button(@click='nextVideo')
     i.fas.fa-step-forward
-
-  button(@click='randomVideo')
+  button(@click='randomVideo'  :class='["random",{"active": isRandom}]')
     i.fas.fa-random
-
-  button(@click='oneLoop' title='test')
+  button(@click='oneLoop' title='test' :class='["loop",{"active": isOneLoop}]')
     i.fas.fa-undo
 
 .volume-range
   .volume
-    button(@click='mute')
+    button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range
     input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
@@ -255,9 +257,15 @@ export default {
     padding 8px
     i
       font-size md
+  
+  
 
 .control
   size(100%,auto)
+  .random,.loop
+    &.active
+      background-color color-secondary
+      color  color-primary-dark
 
 .volume-range
   size(100%,auto)
