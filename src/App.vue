@@ -32,24 +32,10 @@ export default {
       return store.getters.player
     })
 
-    const playerState = computed(()=> {
-      return store.getters.playerState
-    })
-
-    const playlist = computed(()=> {
-      return store.getters.playlist
-    })
-
     const ytId = computed(()=> {
       return store.getters.ytId
     })
     
-    const info = computed(()=> {
-      return store.getters.info
-    })
-
-    
-
     const isOneLoop = computed(()=> {
       return store.getters.isOneLoop
     })
@@ -66,19 +52,6 @@ export default {
       store.dispatch('commitCurrentTime',player.value.getCurrentTime())
       store.dispatch('commitPlaylist',player.value.getPlaylist())
     }
- 
-    const marqueeAnimate = computed(()=> {
-      if (playerState.value!==1) {
-        return {
-          'animation-name': `marquee-animate`,
-          'animation-delay': `-1s`,
-          'animation-duration': `15s`,
-          'animation-iteration-count': `infinite`,
-          'animation-timing-function': `linear`,
-          'animation-direction': `alternate`
-        }
-      }
-    })
 
 
     // 播放器狀態數值:
@@ -97,10 +70,6 @@ export default {
       if ( (event.data == YT.PlayerState.ENDED || YT.PlayerState.CUED ) && !(isOneLoop.value) ) {
         getPlaylist() 
         store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
-        // player.value.nextVideo()
-        // loadPlaylist(ytId.value.list,ytId.value.index) 
-        // store.dispatch('commitYtIdIndex',player.value.getPlaylistIndex)
-        // store.dispatch('commitYtIdVideo',playlist.value[player.value.getPlaylistIndex])
       }
       if( event.data == 1 ) {
         currentTimer()
@@ -113,9 +82,6 @@ export default {
       }
       if ( event.data == YT.PlayerState.ENDED && !isOneLoop.value ) {
         nextVideo()
-        // clearTimer()
-        // store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-        // loadVideo(ytId.value.video)
       }
     }
 
@@ -136,9 +102,6 @@ export default {
     })
 
     return {
-      // onPlayerReady,
-      info,
-      marqueeAnimate,
     }
   }
 }
@@ -151,11 +114,6 @@ Menu
 #player
 Control
 
-.info
-  a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
-    h3 {{info.data.title}} 
-
-  
 </template>
 
 <style lang="stylus">
@@ -169,20 +127,8 @@ Control
   overflow hidden
   
 #player
-  size(100%,30vh)
+  size(100%,60vh)
   display none
-
-.info
-  flexCenter()
-  size(100%,20vh)
-  background-color color-primary-dark 
-  overflow hidden
-  position relative
-  a.marquee
-    white-space nowrap 
-    position absolute
-    color color-secondary
-    size(auto,auto)
      
 
 @keyframes marquee-animate

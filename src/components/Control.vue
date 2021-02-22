@@ -161,6 +161,19 @@ export default {
       }
     })
 
+    const marqueeAnimate = computed(()=> {
+      if (playerState.value!==1) {
+        return {
+          'animation-name': `marquee-animate`,
+          'animation-delay': `-1s`,
+          'animation-duration': `15s`,
+          'animation-iteration-count': `infinite`,
+          'animation-timing-function': `linear`,
+          'animation-direction': `alternate`
+        }
+      }
+    })
+
     return {
       currentTime,
       setCurrentTime,
@@ -181,6 +194,8 @@ export default {
       backgroundStyle,
       isOneLoop,
       isRandom,
+      info,
+      marqueeAnimate
     }
   }
 }
@@ -218,6 +233,11 @@ export default {
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range
     input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
+
+.info
+  a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
+    h3 {{info.data.title}} 
+
 </template>
 
 <style lang='stylus'>
@@ -229,11 +249,14 @@ export default {
   size(100%,60vh)
   padding 1vh
   flexCenter()
+  // display none
   img
     border-radius 4%
     size(96%,auto)
     z-index 100
     box-shadow 2px 2px 2px 2px color-primary-dark
+    cursor pointer
+
   .blur-background
     position absolute
     size(100%,50vh)
@@ -258,8 +281,6 @@ export default {
     padding 8px
     i
       font-size md
-  
-  
 
 .control
   size(100%,auto)
@@ -282,6 +303,18 @@ export default {
     flexCenter()
     input
       size(90%,0.5vh)
+
+.info
+  flexCenter()
+  size(100%,20vh)
+  background-color color-primary-dark 
+  overflow hidden
+  position relative
+  a.marquee
+    white-space nowrap 
+    position absolute
+    color color-secondary
+    size(auto,auto)
 
 @media screen and (min-width 720px)
   .screen
