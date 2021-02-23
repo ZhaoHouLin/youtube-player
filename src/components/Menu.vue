@@ -27,6 +27,8 @@ export default {
     }
 
     const urlGetId = ()=> {
+      store.dispatch('commitIsRandom', false)
+      store.dispatch('commitIsOneLoop',false)
       let idHandleArray = ytUrl.value.split('&')
       handleUrlVideoId(idHandleArray)
       
