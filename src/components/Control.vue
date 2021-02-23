@@ -115,7 +115,7 @@ export default {
     const randomVideo = ()=> {
       store.dispatch('commitIsRandom', !isRandom.value)
       store.dispatch('commitIsOneLoop',false)
-      loadPlaylist(ytId.value.list,ytId.value.index)
+
       console.log(isRandom.value);
     }
 
@@ -289,6 +289,10 @@ export default {
   size(100%,auto)
   .random,.loop
     &.active
+      background-color color-secondary
+      color  color-primary-dark
+  button
+    &:active
       background-color color-secondary
       color  color-primary-dark
 

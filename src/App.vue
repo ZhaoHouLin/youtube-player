@@ -40,6 +40,10 @@ export default {
       return store.getters.isOneLoop
     })
 
+    const isRandom = computed(()=> {
+      return store.getters.isRandom
+    })
+
     const { loadVideo, loadPlaylist, currentTimer, clearTimer, nextVideo } = apiGetCommonFn()
 
     const getPlaylist = ()=> {
@@ -82,6 +86,9 @@ export default {
       }
       if ( event.data == YT.PlayerState.ENDED && !isOneLoop.value ) {
         nextVideo()
+      }
+      if( event.data == YT.PlayerState.ENDED && isRandom) {
+        loadPlaylist(ytId.value.list,ytId.value.index)
       }
     }
 
