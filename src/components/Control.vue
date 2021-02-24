@@ -174,6 +174,14 @@ export default {
       }
     })
 
+    const hover = ref(false)
+    const mouseOver = ()=> {
+      hover.value = true
+    }
+    const mouseLeave = ()=> {
+      hover.value = false
+    }
+
     return {
       currentTime,
       setCurrentTime,
@@ -195,7 +203,10 @@ export default {
       isOneLoop,
       isRandom,
       info,
-      marqueeAnimate
+      marqueeAnimate,
+      mouseOver,
+      mouseLeave,
+      hover
     }
   }
 }
@@ -231,8 +242,13 @@ export default {
   .volume
     button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
-  .range
-    input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
+  .range-content
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver' @mouseleave='mouseLeave')  
+    .content
+      .slider
+        .track
+        .range(:style='{"left": `${volume}%`}')
+        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hover}]')
 
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
@@ -273,6 +289,32 @@ export default {
   .bar
     size(70%,auto)
     margin 0 8px
+  input[type='range']
+    align-items center
+    -webkit-appearance none
+    background none
+    cursor pointer
+    border-radius 8px
+    overflow hidden
+    size(70%,2vh)
+    &:focus 
+      box-shadow none
+      outline none
+
+    &::-webkit-slider-runnable-track 
+      background-color color-secondary-light
+      content ''
+      height 1vh
+      pointer-events none
+      border-radius 8px
+    &::-webkit-slider-thumb 
+      margin-top -0.5vh
+      size(2vh,2vh)
+      -webkit-appearance none
+      background-color color-secondary
+      border-radius 50%
+      box-shadow makelongshadow(-1vw)
+
 
 .control,.volume-range
   flexCenter()
@@ -305,11 +347,71 @@ export default {
     button
       i
         font-size 1.5rem
-  .range
-    size((100/6)*5%,100%)
-    flexCenter()
-    input
-      size(90%,0.5vh)
+        
+  .range-content                  //input range配合js寫法
+    size(100%,auto)
+    flexCenter(,,column)
+    position relative
+    input[type=range]
+      position absolute
+      pointer-events none
+      -webkit-appearance none
+      z-index 2
+      height 10px
+      width 90%
+      // top 30px
+      opacity 0
+      cursor pointer
+    input[type=range]::-webkit-slider-thumb
+      pointer-events all
+      width 30px
+      height 30px
+      border-radius 0
+      border 0 none
+      background-color red
+      -webkit-appearance none
+      cursor pointer
+    .content
+      position relative
+      width 90%
+      .slider
+        position relative
+        z-index 1
+        height 10px
+        margin 0 15px
+        & > .track
+          position absolute
+          z-index 1
+          left 0
+          right 0
+          top 0
+          bottom 0
+          border-radius 5px
+          background-color color-secondary-dark
+        & > .range
+          position absolute
+          z-index 2
+          left 100%
+          right 0%
+          top 0
+          bottom 0
+          border-radius 5px
+          background-color color-secondary-light 
+        & > .thumb
+          position absolute
+          z-index 3
+          width 20px
+          height 20px
+          background-color color-secondary
+          border-radius 50%
+          transition box-shadow .3s ease-in-out
+          left 50%
+          transform translate(-10px, -5px)
+          &.hover
+            box-shadow 0 0 0 10px color-secondary-dark
+          &.active
+            box-shadow 0 0 0 40px rgba(98,0,238,.2)
+
 
 .info
   flexCenter()
@@ -322,6 +424,11 @@ export default {
     position absolute
     color color-secondary
     size(auto,auto)
+
+
+
+
+
 
 @keyframes marquee-animate
   0%
