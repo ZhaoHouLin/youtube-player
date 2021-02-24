@@ -175,6 +175,16 @@ export default {
     })
 
     const hoverId = ref('')
+    const activeId = ref('')
+
+    const mouseDown = (e)=> {
+      activeId.value = e.target.id
+    }
+
+    const mouseUp = (e)=> {
+      activeId.value = ''
+    }
+
     const mouseOver = (e)=> {
       hoverId.value = e.target.id
     }
@@ -206,7 +216,10 @@ export default {
       marqueeAnimate,
       mouseOver,
       mouseLeave,
-      hoverId
+      hoverId,
+      mouseDown,
+      mouseUp,
+      activeId
     }
   }
 }
@@ -222,12 +235,12 @@ export default {
 .progress-bar
   label {{formatTime(currentTime)}}
   .progress-content
-    input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' @mouseover='mouseOver($event)' @mouseleave='mouseLeave') 
+    input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @mousedown='mouseDown($event)' @mouseup='mouseUp') 
     .content
       .slider
         .track
         .range(:style='{"left": `${currentTime/duration*100}%`}')
-        .thumb(:style='{"left": `${currentTime/duration*100}%`}' :class='[{"hover": hoverId=="duration"}]')
+        .thumb(:style='{"left": `${currentTime/duration*100}%`}' :class='[{"hover": hoverId=="duration"},{"active": activeId=="duration"}]')
   label {{formatTime(duration)}}
 
 .control
@@ -249,12 +262,12 @@ export default {
     button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range-content
-    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @input='changeVolume(volume)')  
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @input='changeVolume(volume)' @mousedown='mouseDown($event)' @mouseup='mouseUp')  
     .content
       .slider
         .track
         .range(:style='{"left": `${volume}%`}')
-        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hoverId=="vol"}]')
+        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hoverId=="vol"},{"active": activeId=="vol"}]')
 
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
@@ -339,7 +352,7 @@ export default {
           &.hover
             box-shadow 0 0 0 2px color-secondary-dark
           &.active
-            box-shadow 0 0 0 40px rgba(98,0,238,.2)
+            box-shadow 0 0 0 4px rgba(98,0,238,.2)
 
 
 .control,.volume-range
@@ -416,9 +429,9 @@ export default {
           left 50%
           transform translate(-10px, -5px)
           &.hover
-            box-shadow 0 0 0 10px color-secondary-dark
+            box-shadow 0 0 0 10px rgba(187,0,47,.5)
           &.active
-            box-shadow 0 0 0 40px rgba(98,0,238,.2)
+            box-shadow 0 0 0 16px rgba(98,0,238,.2)
 
 
 .info
@@ -432,10 +445,6 @@ export default {
     position absolute
     color color-secondary
     size(auto,auto)
-
-
-
-
 
 
 @keyframes marquee-animate
