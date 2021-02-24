@@ -297,9 +297,9 @@ export default {
     position relative
     size(70%,auto)
     .bar
-      size(70%,auto)
+      size(100%,auto)
       margin 0 8px
-    inputRange($width=70%)
+    inputRange($width=100%)
     .content
       position relative
       width $width
