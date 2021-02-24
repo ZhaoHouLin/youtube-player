@@ -249,7 +249,7 @@ export default {
     button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range-content
-    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' )  
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @input='changeVolume(volume)')  
     .content
       .slider
         .track
