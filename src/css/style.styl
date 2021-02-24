@@ -34,6 +34,29 @@ posCenter(t=50%,l=50%)
 //     val= val, i*-0.2vw 0 0 -4px color-secondary-dark
 //   return val
 
+inputRange($w)
+  input[type=range]
+    position absolute
+    // pointer-events none
+    -webkit-appearance none
+    z-index 2
+    height 10px
+    width $w
+    // top 30px
+    opacity 0
+    cursor pointer
+  input[type=range]::-webkit-slider-thumb
+    pointer-events all
+    width 30px
+    height 30px
+    border-radius 0
+    border 0 none
+    background-color red
+    -webkit-appearance none
+    cursor pointer
+    
+
+
 *
   margin 0
   padding 0

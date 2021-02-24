@@ -174,12 +174,12 @@ export default {
       }
     })
 
-    const hover = ref(false)
-    const mouseOver = ()=> {
-      hover.value = true
+    const hoverId = ref('')
+    const mouseOver = (e)=> {
+      hoverId.value = e.target.id
     }
     const mouseLeave = ()=> {
-      hover.value = false
+      hoverId.value = ''
     }
 
     return {
@@ -206,7 +206,7 @@ export default {
       marqueeAnimate,
       mouseOver,
       mouseLeave,
-      hover
+      hoverId
     }
   }
 }
@@ -221,7 +221,13 @@ export default {
 
 .progress-bar
   label {{formatTime(currentTime)}}
-  input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
+  .progress-content
+    input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' @mouseover='mouseOver($event)' @mouseleave='mouseLeave') 
+    .content
+      .slider
+        .track
+        .range(:style='{"left": `${currentTime/duration*100}%`}')
+        .thumb(:style='{"left": `${currentTime/duration*100}%`}' :class='[{"hover": hoverId=="duration"}]')
   label {{formatTime(duration)}}
 
 .control
@@ -243,12 +249,12 @@ export default {
     button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
   .range-content
-    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver' @mouseleave='mouseLeave')  
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' )  
     .content
       .slider
         .track
         .range(:style='{"left": `${volume}%`}')
-        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hover}]')
+        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hoverId=="vol"}]')
 
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
@@ -286,34 +292,54 @@ export default {
   color color-secondary-dark
   background-color color-primary-dark
   flexCenter()
-  .bar
+  .progress-content
+    flexCenter(,,column)
+    position relative
     size(70%,auto)
-    margin 0 8px
-  input[type='range']
-    align-items center
-    -webkit-appearance none
-    background none
-    cursor pointer
-    border-radius 8px
-    overflow hidden
-    size(70%,2vh)
-    &:focus 
-      box-shadow none
-      outline none
-
-    &::-webkit-slider-runnable-track 
-      background-color color-secondary-light
-      content ''
-      height 1vh
-      pointer-events none
-      border-radius 8px
-    &::-webkit-slider-thumb 
-      margin-top -0.5vh
-      size(2vh,2vh)
-      -webkit-appearance none
-      background-color color-secondary
-      border-radius 50%
-      box-shadow makelongshadow(-1vw)
+    .bar
+      size(70%,auto)
+      margin 0 8px
+    inputRange($width=70%)
+    .content
+      position relative
+      width $width
+      .slider
+        flexCenter(,,column)
+        position relative
+        z-index 1
+        height 10px
+        margin 0 16px
+        & > .track
+          position absolute
+          z-index 1
+          left 0
+          right 0
+          top 0
+          bottom 0
+          // border-radius 5px
+          background-color color-secondary-dark
+        & > .range
+          position absolute
+          z-index 2
+          left 0%
+          right 0%
+          top 0
+          bottom 0
+          // border-radius 5px
+          background-color color-secondary-light 
+        & > .thumb
+          position absolute
+          z-index 3
+          width 8px
+          height 20px
+          background-color color-secondary
+          // border-radius 50%
+          transition box-shadow .3s ease-in-out
+          left 0%
+          &.hover
+            box-shadow 0 0 0 2px color-secondary-dark
+          &.active
+            box-shadow 0 0 0 40px rgba(98,0,238,.2)
 
 
 .control,.volume-range
@@ -347,33 +373,15 @@ export default {
     button
       i
         font-size 1.5rem
-        
+
   .range-content                  //input range配合js寫法
     size(100%,auto)
     flexCenter(,,column)
     position relative
-    input[type=range]
-      position absolute
-      pointer-events none
-      -webkit-appearance none
-      z-index 2
-      height 10px
-      width 90%
-      // top 30px
-      opacity 0
-      cursor pointer
-    input[type=range]::-webkit-slider-thumb
-      pointer-events all
-      width 30px
-      height 30px
-      border-radius 0
-      border 0 none
-      background-color red
-      -webkit-appearance none
-      cursor pointer
+    inputRange($w=90%)
     .content
       position relative
-      width 90%
+      width $w
       .slider
         position relative
         z-index 1
