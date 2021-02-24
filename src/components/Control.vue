@@ -115,7 +115,7 @@ export default {
     const randomVideo = ()=> {
       store.dispatch('commitIsRandom', !isRandom.value)
       store.dispatch('commitIsOneLoop',false)
-      loadPlaylist(ytId.value.list,ytId.value.index)
+
       console.log(isRandom.value);
     }
 
@@ -174,6 +174,24 @@ export default {
       }
     })
 
+    const hoverId = ref('')
+    const activeId = ref('')
+
+    const mouseDown = (e)=> {
+      activeId.value = e.target.id
+    }
+
+    const mouseUp = (e)=> {
+      activeId.value = ''
+    }
+
+    const mouseOver = (e)=> {
+      hoverId.value = e.target.id
+    }
+    const mouseLeave = ()=> {
+      hoverId.value = ''
+    }
+
     return {
       currentTime,
       setCurrentTime,
@@ -195,7 +213,13 @@ export default {
       isOneLoop,
       isRandom,
       info,
-      marqueeAnimate
+      marqueeAnimate,
+      mouseOver,
+      mouseLeave,
+      hoverId,
+      mouseDown,
+      mouseUp,
+      activeId
     }
   }
 }
@@ -210,7 +234,13 @@ export default {
 
 .progress-bar
   label {{formatTime(currentTime)}}
-  input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' ) 
+  .progress-content
+    input.bar(type="range" id="duration" name="duration" min="0" :max="duration" step=1 @change='setCurrentTime' v-model.number='currentTime' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @mousedown='mouseDown($event)' @mouseup='mouseUp') 
+    .content
+      .slider
+        .track
+        .range(:style='{"left": `${currentTime/duration*100}%`}')
+        .thumb(:style='{"left": `${currentTime/duration*100}%`}' :class='[{"hover": hoverId=="duration"},{"active": activeId=="duration"}]')
   label {{formatTime(duration)}}
 
 .control
@@ -231,8 +261,13 @@ export default {
   .volume
     button(@click='mute' )
       i(:class='["fas",{"fa-volume-mute": volumeRange==1},{"fa-volume-off": volumeRange==2},{"fa-volume-down": volumeRange==3},{"fa-volume-up": volumeRange==4}]')
-  .range
-    input(type="range" id="vol" name="vol" min="0" max="100" step=1 @change='changeVolume(volume)' v-model.number='volume' )  
+  .range-content
+    input(type="range" id="vol" name="vol" min="0" max="100" step=1 v-model.number='volume' @mouseover='mouseOver($event)' @mouseleave='mouseLeave' @input='changeVolume(volume)' @mousedown='mouseDown($event)' @mouseup='mouseUp')  
+    .content
+      .slider
+        .track
+        .range(:style='{"left": `${volume}%`}')
+        .thumb(:style='{"left": `${volume}%`}' :class='[{"hover": hoverId=="vol"},{"active": activeId=="vol"}]')
 
 .info
   a.marquee(:href="info.videoUrl" target='_blank' :style='marqueeAnimate')
@@ -270,9 +305,55 @@ export default {
   color color-secondary-dark
   background-color color-primary-dark
   flexCenter()
-  .bar
+  .progress-content
+    flexCenter(,,column)
+    position relative
     size(70%,auto)
-    margin 0 8px
+    .bar
+      size(100%,auto)
+      margin 0 8px
+    inputRange($width=100%)
+    .content
+      position relative
+      width $width
+      .slider
+        flexCenter(,,column)
+        position relative
+        z-index 1
+        height 10px
+        margin 0 16px
+        & > .track
+          position absolute
+          z-index 1
+          left 0
+          right 0
+          top 0
+          bottom 0
+          // border-radius 5px
+          background-color color-secondary-dark
+        & > .range
+          position absolute
+          z-index 2
+          left 0%
+          right 0%
+          top 0
+          bottom 0
+          // border-radius 5px
+          background-color color-secondary-light 
+        & > .thumb
+          position absolute
+          z-index 3
+          width 8px
+          height 20px
+          background-color color-secondary
+          // border-radius 50%
+          transition box-shadow .3s ease-in-out
+          left 0%
+          &.hover
+            box-shadow 0 0 0 2px color-secondary-dark
+          &.active
+            box-shadow 0 0 0 4px rgba(98,0,238,.2)
+
 
 .control,.volume-range
   flexCenter()
@@ -291,6 +372,10 @@ export default {
     &.active
       background-color color-secondary
       color  color-primary-dark
+  button
+    &:active
+      background-color color-secondary
+      color  color-primary-dark
 
 .volume-range
   size(100%,auto)
@@ -301,11 +386,53 @@ export default {
     button
       i
         font-size 1.5rem
-  .range
-    size((100/6)*5%,100%)
-    flexCenter()
-    input
-      size(90%,0.5vh)
+
+  .range-content                  //input range配合js寫法
+    size(100%,auto)
+    flexCenter(,,column)
+    position relative
+    inputRange($w=90%)
+    .content
+      position relative
+      width $w
+      .slider
+        position relative
+        z-index 1
+        height 10px
+        margin 0 15px
+        & > .track
+          position absolute
+          z-index 1
+          left 0
+          right 0
+          top 0
+          bottom 0
+          border-radius 5px
+          background-color color-secondary-dark
+        & > .range
+          position absolute
+          z-index 2
+          left 100%
+          right 0%
+          top 0
+          bottom 0
+          border-radius 5px
+          background-color color-secondary-light 
+        & > .thumb
+          position absolute
+          z-index 3
+          width 20px
+          height 20px
+          background-color color-secondary
+          border-radius 50%
+          transition box-shadow .3s ease-in-out
+          left 50%
+          transform translate(-10px, -5px)
+          &.hover
+            box-shadow 0 0 0 10px rgba(187,0,47,.5)
+          &.active
+            box-shadow 0 0 0 16px rgba(98,0,238,.2)
+
 
 .info
   flexCenter()
@@ -318,6 +445,7 @@ export default {
     position absolute
     color color-secondary
     size(auto,auto)
+
 
 @keyframes marquee-animate
   0%
