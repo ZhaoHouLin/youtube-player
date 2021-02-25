@@ -192,6 +192,12 @@ export default {
       hoverId.value = ''
     }
 
+    const videoIsOpen = ref(false)
+    const handleVideoOpen = ()=> {
+      videoIsOpen.value = !videoIsOpen.value
+    }
+
+
     return {
       currentTime,
       setCurrentTime,
@@ -219,17 +225,21 @@ export default {
       hoverId,
       mouseDown,
       mouseUp,
-      activeId
+      activeId,
+      videoIsOpen,
+      handleVideoOpen,
     }
   }
 }
 </script>
 
 <template lang='pug'>
-#player
+.player(v-show='videoIsOpen' )
+  .layer(@click='handleVideoOpen')
+  #player
 
-.screen
-  img(:src="loadVideoCover", alt="alt")
+.screen(v-show='!videoIsOpen')
+  img(:src="loadVideoCover", alt="alt" @click='handleVideoOpen')
   .blur-background(:style='backgroundStyle')
 
 .progress-bar
@@ -277,23 +287,35 @@ export default {
 
 <style lang='stylus'>
 @import '../css/style.styl'
-
-#player
+.player
   size(100%,60vh)
-  display none
+  position relative
+  .layer
+    position absolute
+    size(100%,60vh)
+    cursor pointer
+    transition background-color .3s ease-in-out
+    &:hover
+      background-color rgba(255,255,255,0.1)
+  #player
+    size(100%,100%)
+  
 .screen
   position relative
   background-color color-primary 
   size(100%,60vh)
   padding 1vh
   flexCenter()
-  // display none
+
   img
     border-radius 4%
     size(96%,auto)
     z-index 100
     box-shadow 2px 2px 2px 2px color-primary-dark
     cursor pointer
+    transition opacity .3s ease-in-out
+    &:hover
+      opacity 0.3
 
   .blur-background
     position absolute
