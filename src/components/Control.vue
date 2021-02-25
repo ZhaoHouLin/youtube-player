@@ -196,6 +196,10 @@ export default {
     const handleVideoOpen = ()=> {
       videoIsOpen.value = !videoIsOpen.value
     }
+    const isFullWindow = ref(false)
+    const handleFullWindow = ()=> {
+      isFullWindow.value = !isFullWindow.value
+    }
 
 
     return {
@@ -228,17 +232,24 @@ export default {
       activeId,
       videoIsOpen,
       handleVideoOpen,
+      isFullWindow,
+      handleFullWindow
     }
   }
 }
 </script>
 
 <template lang='pug'>
-.player(v-show='videoIsOpen' )
-  .layer(@click='handleVideoOpen')
+.player(v-show='videoIsOpen' :class='[{"full-window": isFullWindow}]')
+  .layer(:class='[{"full-window": isFullWindow}]')
+    .close-video(@click='handleVideoOpen')
+      i.fas.fa-backspace
+    .open-full-window(@click='handleFullWindow')
+      i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
+
   #player
 
-.screen(v-show='!videoIsOpen')
+.screen(v-show='!videoIsOpen' )
   img(:src="loadVideoCover", alt="alt" @click='handleVideoOpen')
   .blur-background(:style='backgroundStyle')
 
@@ -290,13 +301,38 @@ export default {
 .player
   size(100%,60vh)
   position relative
+  &.full-window
+    position absolute
+    size(100%,100vh)
+    z-index 100
   .layer
     position absolute
     size(100%,60vh)
     cursor pointer
-    transition background-color .3s ease-in-out
+    transition opacity .3s ease-in-out
+    flexCenter()
+    opacity 0
+    &.full-window
+      size(100%,90vh)
     &:hover
-      background-color rgba(255,255,255,0.1)
+      opacity 1
+    .close-video,.open-full-window
+      size(50%,100%)
+      transition background-color .3s ease-in-out
+      flexCenter()
+      font-size 2*xl
+      i
+        color #eee
+    .close-video
+      background-color rgba(255,0,0,0.3)
+      &:hover
+        background-color rgba(255,0,0,0.6)
+    .open-full-window
+      background-color rgba(0,0,255,0.3)
+      
+      &:hover
+        background-color rgba(0,0,255,0.6)
+      
   #player
     size(100%,100%)
   
