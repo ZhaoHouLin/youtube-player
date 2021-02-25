@@ -192,6 +192,16 @@ export default {
       hoverId.value = ''
     }
 
+    const videoIsOpen = ref(false)
+    const handleVideoOpen = ()=> {
+      videoIsOpen.value = !videoIsOpen.value
+    }
+    const isFullWindow = ref(false)
+    const handleFullWindow = ()=> {
+      isFullWindow.value = !isFullWindow.value
+    }
+
+
     return {
       currentTime,
       setCurrentTime,
@@ -219,17 +229,28 @@ export default {
       hoverId,
       mouseDown,
       mouseUp,
-      activeId
+      activeId,
+      videoIsOpen,
+      handleVideoOpen,
+      isFullWindow,
+      handleFullWindow
     }
   }
 }
 </script>
 
 <template lang='pug'>
-#player
+.player(v-show='videoIsOpen' :class='[{"full-window": isFullWindow}]')
+  .layer(:class='[{"full-window": isFullWindow}]')
+    .close-video(@click='handleVideoOpen')
+      i.fas.fa-backspace
+    .open-full-window(@click='handleFullWindow')
+      i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
 
-.screen
-  img(:src="loadVideoCover", alt="alt")
+  #player
+
+.screen(v-show='!videoIsOpen' )
+  img(:src="loadVideoCover", alt="alt" @click='handleVideoOpen')
   .blur-background(:style='backgroundStyle')
 
 .progress-bar
@@ -277,23 +298,60 @@ export default {
 
 <style lang='stylus'>
 @import '../css/style.styl'
-
-#player
+.player
   size(100%,60vh)
-  display none
+  position relative
+  &.full-window
+    position absolute
+    size(100%,100vh)
+    z-index 100
+  .layer
+    position absolute
+    size(100%,60vh)
+    cursor pointer
+    transition opacity .3s ease-in-out
+    flexCenter()
+    opacity 0
+    &.full-window
+      size(100%,90vh)
+    &:hover
+      opacity 1
+    .close-video,.open-full-window
+      size(50%,100%)
+      transition background-color .3s ease-in-out
+      flexCenter()
+      font-size 2*xl
+      i
+        color #eee
+    .close-video
+      background-color rgba(255,0,0,0.3)
+      &:hover
+        background-color rgba(255,0,0,0.6)
+    .open-full-window
+      background-color rgba(0,0,255,0.3)
+      
+      &:hover
+        background-color rgba(0,0,255,0.6)
+      
+  #player
+    size(100%,100%)
+  
 .screen
   position relative
   background-color color-primary 
   size(100%,60vh)
   padding 1vh
   flexCenter()
-  // display none
+
   img
     border-radius 4%
     size(96%,auto)
     z-index 100
     box-shadow 2px 2px 2px 2px color-primary-dark
     cursor pointer
+    transition opacity .3s ease-in-out
+    &:hover
+      opacity 0.3
 
   .blur-background
     position absolute
