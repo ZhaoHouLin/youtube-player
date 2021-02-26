@@ -201,6 +201,19 @@ export default {
       isFullWindow.value = !isFullWindow.value
     }
 
+    const play = ref()
+
+    const launchIntoFullscreen = ()=> {
+      // console.log(document.documentElement);
+      if (!document.fullscreenElement) {
+        play.value.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
 
     return {
       currentTime,
@@ -233,20 +246,23 @@ export default {
       videoIsOpen,
       handleVideoOpen,
       isFullWindow,
-      handleFullWindow
+      handleFullWindow,
+      launchIntoFullscreen,
+      play
     }
   }
 }
 </script>
 
 <template lang='pug'>
-.player(v-show='videoIsOpen' :class='[{"full-window": isFullWindow}]')
+//- .player(v-show='videoIsOpen' :class='[{"full-window": isFullWindow}]' )
+.player(v-show='videoIsOpen' ref='play' )
   .layer(:class='[{"full-window": isFullWindow}]')
     .close-video(@click='handleVideoOpen')
       i.fas.fa-backspace
-    .open-full-window(@click='handleFullWindow')
+    .open-full-window(@click='handleFullWindow(),launchIntoFullscreen()')
       i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
-
+    
   #player
 
 .screen(v-show='!videoIsOpen' )
@@ -277,6 +293,8 @@ export default {
     i.fas.fa-random
   button(@click='oneLoop' title='test' :class='["loop",{"active": isOneLoop}]')
     i.fas.fa-undo
+  button(@click='handleFullWindow(),launchIntoFullscreen()')
+    i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
 
 .volume-range
   .volume
@@ -301,10 +319,10 @@ export default {
 .player
   size(100%,60vh)
   position relative
-  &.full-window
-    position absolute
-    size(100%,100vh)
-    z-index 100
+  // &.full-window
+  //   position absolute
+  //   size(100%,100vh)
+  //   z-index 100
   .layer
     position absolute
     size(100%,60vh)
@@ -313,7 +331,7 @@ export default {
     flexCenter()
     opacity 0
     &.full-window
-      size(100%,90vh)
+      size(100%,100vh)
     &:hover
       opacity 1
     .close-video,.open-full-window
