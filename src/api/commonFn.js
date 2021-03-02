@@ -47,7 +47,7 @@ const commonFn = ()=> {
     clearInterval(timer)
   }
 
-  const nextVideo = () => {
+  const nextVideo = () => {                               //下一首影片播放
     store.dispatch('commitIsOneLoop', false)
     if (isRandom.value) {
       let random = Math.floor(Math.random() * player.value.getPlaylist().length)

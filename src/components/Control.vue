@@ -8,30 +8,28 @@ export default {
 
     const { loadVideo, loadPlaylist, nextVideo} = apiGetCommonFn()
     
-    const volume = ref(50)
-
-    const ytId = computed(()=> {
+    const ytId = computed(()=> {                    //youtube影片ID資料
       return store.getters.ytId
     })
-    const player = computed(()=> {
+    const player = computed(()=> {                  //youtube iframe API 的播放器dom
       return store.getters.player
     })
-    const playerState = computed(()=> {
+    const playerState = computed(()=> {             //當前播放狀態
       return store.getters.playerState
     })
-    const playlist = computed(()=> {
+    const playlist = computed(()=> {                //播放清單(陣列，內容為各影片的ID)
       return store.getters.playlist
     })
-    const info = computed(()=> {
+    const info = computed(()=> {                    //影片的相關資訊
       return store.getters.info
     })
-    const isOneLoop = computed(()=> {
+    const isOneLoop = computed(()=> {               //是否單曲循環的狀態
       return store.getters.isOneLoop
     })
-    const isRandom = computed(()=> {
+    const isRandom = computed(()=> {                //是否隨機播放的狀態
       return store.getters.isRandom
     })
-
+    const volume = ref(50)                          //預設音量為50
     const currentTime = computed({                  //雙向綁定vuex寫法
       set(val) {
         store.dispatch('commitCurrentTime',val)
@@ -40,37 +38,19 @@ export default {
         return store.getters.currentTime
       }
     })
-
-    const duration = computed(()=> {
+    const duration = computed(()=> {                //影片片長時間(秒)
       return store.getters.duration
     })
 
-    const setCurrentTime = ()=> {
+    const setCurrentTime = ()=> {                   //設定從第幾秒開始播放
       player.value.seekTo(currentTime.value,true)
     }
-
-    const formatTime = (val)=> {
+    const formatTime = (val)=> {                    //格式化影片時間(00:00)
       let dMinutes = '00'+Math.floor(val/60)
       let dSeconds = '00'+Math.floor(val%60)
       return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
     }
-
-    const loadVideoCover = computed(()=> {
-       return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
-    })
-
-    const backgroundStyle = computed(()=> {
-      return {
-        'background-image': `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
-        'background-position': `center`,
-        'background-size': `cover`,
-        'background-repeat': 'no-repeat',
-        'filter': `blur(16px)`
-
-      }
-    })
-
-    const previousVideo = ()=> {
+    const previousVideo = ()=> {                    //前一首影片播放
       store.dispatch('commitIsOneLoop',false)
       if(isRandom.value) {
         let random = Math.floor(Math.random()*player.value.getPlaylist().length)
@@ -81,29 +61,22 @@ export default {
       } else {
         store.dispatch('commitYtIdIndex',ytId.value.index-1)
         store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-  
         if(ytId.value.index < 0) {
           store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
           store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
         }
-
       }
-
       loadVideo()
       loadPlaylist(ytId.value.list,ytId.value.index) 
     } 
-
-
-    const stopVideo = ()=> {
+    const stopVideo = ()=> {                        //停止播放
       store.dispatch('commitCurrentTime', 0)
       store.dispatch('commitPlayerState', 1)
       player.value.stopVideo()
     }
-
-    const playPauseVideo = ()=> {
+    const playPauseVideo = ()=> {                   //播放和暫停
       player.value.playVideo()
       store.dispatch('commitPlayerState',player.value.getPlayerState())
-
       if(playerState.value == 2) {
         player.value.playVideo()
       }
@@ -111,22 +84,16 @@ export default {
         player.value.pauseVideo()
       }
     }
-
-    const randomVideo = ()=> {
+    const randomVideo = ()=> {                      //隨機播放
       store.dispatch('commitIsRandom', !isRandom.value)
       store.dispatch('commitIsOneLoop',false)
-
-      console.log(isRandom.value);
     }
-
-    const oneLoop = ()=> {
+    const oneLoop = ()=> {                          //單手重複播放
       store.dispatch('commitIsOneLoop',!isOneLoop.value)
       store.dispatch('commitIsRandom', false)
       store.dispatch('commitYtIdVideo',info.value.data.video_id)
-      console.log('oneLoop',store.getters.isOneLoop);
     }
-
-    const mute = ()=> {
+    const mute = ()=> {                             //判斷靜音
       if (player.value.isMuted()) {
         player.value.unMute()
         volume.value = player.value.getVolume()
@@ -135,8 +102,13 @@ export default {
         volume.value = 0
       }
     }
+    const changeVolume = (val)=> {                  //改變音量
+      player.value.unMute()
+      volume.value = val
+      player.value.setVolume(volume.value)
+    }
 
-    const volumeRange = computed(()=> {
+    const volumeRange = computed(()=> {             //判斷音量範圍呈現不同的icon
       if (volume.value > 0 && volume.value < 50) return 2
       if (volume.value > 50 && volume.value < 70) return 3
       if (volume.value > 70) return 4
@@ -146,22 +118,14 @@ export default {
         return 2
       }
     })
-
-    const changeVolume = (val)=> {
-      player.value.unMute()
-      volume.value = val
-      player.value.setVolume(volume.value)
-    }
-
-    const buttonPlayPause = computed(()=> {
+    const buttonPlayPause = computed(()=> {         //判斷播放or暫停呈現不同的icon
       if(playerState.value == 1 ) {
         return true
       } else {
         return false
       }
     })
-
-    const marqueeAnimate = computed(()=> {
+    const marqueeAnimate = computed(()=> {          //影片標題跑馬燈css動畫
       if (playerState.value!==1) {
         return {
           'animation-name': `marquee-animate`,
@@ -173,45 +137,55 @@ export default {
         }
       }
     })
+    const loadVideoCover = computed(()=> {          //呈現影片縮圖
+       return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
+    })
+    const backgroundStyle = computed(()=> {         //設定影片縮圖相關CSS格式
+      return {
+        'background-image': `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
+        'background-position': `center`,
+        'background-size': `cover`,
+        'background-repeat': 'no-repeat',
+        'filter': `blur(16px)`
+      }
+    })
 
-    const hoverId = ref('')
-    const activeId = ref('')
-
-    const mouseDown = (e)=> {
-      activeId.value = e.target.id
+    //  ↓------以js改變input range的樣式------↓
+    const hoverId = ref('')                         //hover用ID(存放hover時的dom ID存放hover時的dom ID)
+    const activeId = ref('')                        //active用ID(存放active時的dom ID存放hover時的dom ID)
+    const mouseDown = (e)=> {                       //當mousedown事件時
+      activeId.value = e.target.id                  //符合傳入的id才會觸發css
     }
-
-    const mouseUp = (e)=> {
+    const mouseUp = ()=> {                          //當mouseup事件時
       activeId.value = ''
     }
-
-    const mouseOver = (e)=> {
+    const mouseOver = (e)=> {                       //當mouseover事件時
       hoverId.value = e.target.id
     }
-    const mouseLeave = ()=> {
+    const mouseLeave = ()=> {                       //當mouseleave事件時
       hoverId.value = ''
     }
+    //  ↑------以js改變input range的樣式------↑
 
-    const videoIsOpen = ref(false)
-    const handleVideoOpen = ()=> {
+    //  ↓------全螢幕相關------↓
+    const playerScreen = ref()                       //包裝播放器screen的dom
+    const videoIsOpen = ref(false)                   //影片開啟的狀態
+    const isFullScreen = ref(false)                  //全螢幕的狀態
+
+    const handleVideoOpen = ()=> {                   //判斷開啟video
       videoIsOpen.value = !videoIsOpen.value
     }
-    const isFullScreen = ref(false)
-    const handleFullWindow = ()=> {
+    const handleFullScreen = ()=> {                  //判斷開啟全螢幕
       isFullScreen.value = !isFullScreen.value
     }
-
-    const playerScreen = ref()
-
-          
-    const launchIntoFullscreen = ()=> {
-      if (document.fullscreenElement) {
+    const launchIntoFullscreen = ()=> {              //檢查全螢幕
+      if (document.fullscreenElement) {              //document.fullscreenElement有值時
         document.exitFullscreen()
       } else {
         playerScreen.value.requestFullscreen()
       }
     }
-
+    //  ↑------全螢幕相關------↑
 
     return {
       currentTime,
@@ -244,7 +218,7 @@ export default {
       videoIsOpen,
       handleVideoOpen,
       isFullScreen,
-      handleFullWindow,
+      handleFullScreen,
       launchIntoFullscreen,
       playerScreen,
     }
@@ -258,7 +232,7 @@ export default {
   .layer(:class='[{"full-window": isFullScreen}]')
     .close-video(@click='handleVideoOpen')
       i.fas.fa-backspace
-    .open-full-window(@click='handleFullWindow(),launchIntoFullscreen()')
+    .open-full-window(@click='handleFullScreen(),launchIntoFullscreen()')
       i(:class='["fas",{"fa-expand-alt": !isFullScreen},{"fa-compress-alt": isFullScreen}]')
     
   #player
@@ -291,7 +265,7 @@ export default {
     i.fas.fa-random
   button(@click='oneLoop' title='test' :class='["loop",{"active": isOneLoop}]')
     i.fas.fa-undo
-  button(@click='handleFullWindow(),launchIntoFullscreen()')
+  button(@click='handleFullScreen(),launchIntoFullscreen()')
     i(:class='["fas",{"fa-expand-alt": !isFullScreen},{"fa-compress-alt": isFullScreen}]')
 
 .volume-range
