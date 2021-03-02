@@ -196,21 +196,19 @@ export default {
     const handleVideoOpen = ()=> {
       videoIsOpen.value = !videoIsOpen.value
     }
-    const isFullWindow = ref(false)
+    const isFullScreen = ref(false)
     const handleFullWindow = ()=> {
-      isFullWindow.value = !isFullWindow.value
+      isFullScreen.value = !isFullScreen.value
     }
 
-    const play = ref()
+    const playerScreen = ref()
 
+          
     const launchIntoFullscreen = ()=> {
-      // console.log(document.documentElement);
-      if (!document.fullscreenElement) {
-        play.value.requestFullscreen();
+      if (document.fullscreenElement) {
+        document.exitFullscreen()
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
+        playerScreen.value.requestFullscreen()
       }
     }
 
@@ -245,23 +243,23 @@ export default {
       activeId,
       videoIsOpen,
       handleVideoOpen,
-      isFullWindow,
+      isFullScreen,
       handleFullWindow,
       launchIntoFullscreen,
-      play
+      playerScreen,
     }
   }
 }
 </script>
 
 <template lang='pug'>
-//- .player(v-show='videoIsOpen' :class='[{"full-window": isFullWindow}]' )
-.player(v-show='videoIsOpen' ref='play' )
-  .layer(:class='[{"full-window": isFullWindow}]')
+//- .player(v-show='videoIsOpen' :class='[{"full-window": isFullScreen}]' )
+.player(v-show='videoIsOpen' ref='playerScreen' )
+  .layer(:class='[{"full-window": isFullScreen}]')
     .close-video(@click='handleVideoOpen')
       i.fas.fa-backspace
     .open-full-window(@click='handleFullWindow(),launchIntoFullscreen()')
-      i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
+      i(:class='["fas",{"fa-expand-alt": !isFullScreen},{"fa-compress-alt": isFullScreen}]')
     
   #player
 
@@ -294,7 +292,7 @@ export default {
   button(@click='oneLoop' title='test' :class='["loop",{"active": isOneLoop}]')
     i.fas.fa-undo
   button(@click='handleFullWindow(),launchIntoFullscreen()')
-    i(:class='["fas",{"fa-expand-alt": !isFullWindow},{"fa-compress-alt": isFullWindow}]')
+    i(:class='["fas",{"fa-expand-alt": !isFullScreen},{"fa-compress-alt": isFullScreen}]')
 
 .volume-range
   .volume
@@ -319,37 +317,27 @@ export default {
 .player
   size(100%,60vh)
   position relative
-  // &.full-window
-  //   position absolute
-  //   size(100%,100vh)
-  //   z-index 100
+
   .layer
-    position absolute
+    posCenter()
     size(100%,60vh)
     cursor pointer
     transition opacity .3s ease-in-out
     flexCenter()
     opacity 0
     &.full-window
-      size(100%,100vh)
+      size(100%,80vh)
     &:hover
       opacity 1
     .close-video,.open-full-window
       size(50%,100%)
-      transition background-color .3s ease-in-out
       flexCenter()
       font-size 2*xl
       i
-        color #eee
-    .close-video
-      background-color rgba(255,0,0,0.3)
-      &:hover
-        background-color rgba(255,0,0,0.6)
-    .open-full-window
-      background-color rgba(0,0,255,0.3)
-      
-      &:hover
-        background-color rgba(0,0,255,0.6)
+        transition color .3s ease-in-out
+        color color-secondary-light
+      &:hover i
+        color color-secondary-dark
       
   #player
     size(100%,100%)
