@@ -1,22 +1,13 @@
-# youtube-player
+# Youtube播放器 youtube-player
 
-DEMO:
-https://zhaohoulin.github.io/youtube-player/#/
+DEMO網頁: https://zhaohoulin.github.io/youtube-player/#/
 
-## Project setup
-```
-npm install
-```
+<img src="demo/mobile-1.jpg"  width="360px" >
+<img src="demo/mobile-2.jpg"  width="360px" >
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+![image](demo/demo.gif)
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 功能 & 特色
+* 透過youtube iframe API 來播放youtube影片
+* 可輸入youtube影片網址來播放
+* 可阻擋影片廣告
