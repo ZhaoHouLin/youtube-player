@@ -168,17 +168,17 @@ export default {
     //  ↑------以js改變input range的樣式------↑
 
     //  ↓------全螢幕相關------↓
-    const playerScreen = ref()                       //包裝播放器screen的dom
-    const videoIsOpen = ref(false)                   //影片開啟的狀態
-    const isFullScreen = ref(false)                  //全螢幕的狀態
+    const playerScreen = ref()                      //包裝播放器screen的dom
+    const videoIsOpen = ref(false)                  //影片開啟的狀態
+    const isFullScreen = ref(false)                 //全螢幕的狀態
 
-    const handleVideoOpen = ()=> {                   //判斷開啟video
+    const handleVideoOpen = ()=> {                  //判斷開啟video
       videoIsOpen.value = !videoIsOpen.value
     }
-    const handleFullScreen = ()=> {                  //判斷開啟全螢幕
+    const handleFullScreen = ()=> {                 //判斷開啟全螢幕
       isFullScreen.value = !isFullScreen.value
     }
-    const launchIntoFullscreen = ()=> {              //檢查全螢幕
+    const launchIntoFullscreen = ()=> {             //檢查全螢幕
       if (document.fullscreenElement) {              //document.fullscreenElement有值時
         document.exitFullscreen()
       } else {
@@ -234,7 +234,6 @@ export default {
       i.fas.fa-backspace
     .open-full-window(@click='handleFullScreen(),launchIntoFullscreen()')
       i(:class='["fas",{"fa-expand-alt": !isFullScreen},{"fa-compress-alt": isFullScreen}]')
-    
   #player
 
 .screen(v-show='!videoIsOpen' )
@@ -367,7 +366,6 @@ export default {
           right 0
           top 0
           bottom 0
-          // border-radius 5px
           background-color color-secondary-dark
         & > .range
           position absolute
@@ -376,7 +374,6 @@ export default {
           right 0%
           top 0
           bottom 0
-          // border-radius 5px
           background-color color-secondary-light 
         & > .thumb
           position absolute
@@ -384,7 +381,6 @@ export default {
           width 8px
           height 20px
           background-color color-secondary
-          // border-radius 50%
           transition box-shadow .3s ease-in-out
           left 0%
           &.hover
@@ -421,9 +417,8 @@ export default {
   flexCenter(flex-start,center,)
   .volume
     size((100/6)%,100%)
-    button
-      i
-        font-size 1.5rem
+    button i
+      font-size 1.5rem
 
   .range-content                  //input range配合js寫法
     size(100%,auto)
@@ -492,7 +487,6 @@ export default {
     transform translateX(100%)
 
 @media screen and (min-width 720px)
-  .screen
-    img
-      size(auto,100%)
+  .screen img
+    size(auto,100%)
 </style>

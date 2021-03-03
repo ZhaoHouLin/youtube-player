@@ -46,7 +46,7 @@ export default {
 
     const { loadVideo, loadPlaylist, currentTimer, clearTimer, nextVideo } = apiGetCommonFn()
 
-    const getPlaylist = ()=> {
+    const getPlaylist = ()=> {                        //處理影片的資料
       store.dispatch('commitDuration',Math.floor(player.value.getDuration()))
       let payload = {
         data: player.value.getVideoData(),
@@ -66,7 +66,7 @@ export default {
     // 3 – 正在緩冲
     // 5 – 已插入視頻 
     
-    const onPlayerStateChange = (event)=> {
+    const onPlayerStateChange = (event)=> {           //各播放狀態要執行的函式
       if ( (event.data == YT.PlayerState.BUFFERING) && !(isOneLoop.value) ) {
         store.dispatch('commitPlayerState',player.value.getPlayerState())
         getPlaylist() 
