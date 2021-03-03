@@ -2,8 +2,7 @@
 
 DEMO網頁: https://zhaohoulin.github.io/youtube-player/#/
 
-<img src="demo/mobile-1.jpg"  width="40%" >
-<img src="demo/mobile-2.jpg"  width="40%" >
+<img src="demo/mobile-1.jpg"  width="45%" ><img src="demo/mobile-2.jpg"  width="45%" >
 
 ![image](demo/demo.gif)
 
