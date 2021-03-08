@@ -293,13 +293,13 @@ export default {
 
   .layer
     posCenter()
-    size(100%,60vh)
+    size(100%,30vh)
     cursor pointer
     transition opacity .3s ease-in-out
     flexCenter()
     opacity 0
     &.full-window
-      size(100%,80vh)
+      size(100%,70vh)
     &:hover
       opacity 1
     .close-video,.open-full-window
