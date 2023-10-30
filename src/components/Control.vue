@@ -1,99 +1,126 @@
 <script>
-import { ref, computed} from 'vue'
-import { useStore } from 'vuex'
-import { apiGetCommonFn } from '../api'
+import { ref, computed } from "vue"
+import { useStore } from "vuex"
+import { apiGetCommonFn } from "../api"
 export default {
   setup() {
     const store = useStore()
 
-    const { loadVideo, loadPlaylist, nextVideo} = apiGetCommonFn()
-    
-    const ytId = computed(()=> {                    //youtube影片ID資料
+    const { loadVideo, loadPlaylist, nextVideo } = apiGetCommonFn()
+
+    const ytId = computed(() => {
+      //youtube影片ID資料
       return store.getters.ytId
     })
-    const player = computed(()=> {                  //youtube iframe API 的播放器dom
+    const player = computed(() => {
+      //youtube iframe API 的播放器dom
       return store.getters.player
     })
-    const playerState = computed(()=> {             //當前播放狀態
+    const playerState = computed(() => {
+      //當前播放狀態
       return store.getters.playerState
     })
-    const playlist = computed(()=> {                //播放清單(陣列，內容為各影片的ID)
+    const playlist = computed(() => {
+      //播放清單(陣列，內容為各影片的ID)
       return store.getters.playlist
     })
-    const info = computed(()=> {                    //影片的相關資訊
+    const info = computed(() => {
+      //影片的相關資訊
       return store.getters.info
     })
-    const isOneLoop = computed(()=> {               //是否單曲循環的狀態
+    const isOneLoop = computed(() => {
+      //是否單曲循環的狀態
       return store.getters.isOneLoop
     })
-    const isRandom = computed(()=> {                //是否隨機播放的狀態
+    const isRandom = computed(() => {
+      //是否隨機播放的狀態
       return store.getters.isRandom
     })
-    const volume = ref(50)                          //預設音量為50
-    const currentTime = computed({                  //雙向綁定vuex寫法
+    const volume = ref(50) //預設音量為50
+    const currentTime = computed({
+      //雙向綁定vuex寫法
       set(val) {
-        store.dispatch('commitCurrentTime',val)
+        store.dispatch("commitCurrentTime", val)
       },
       get() {
         return store.getters.currentTime
-      }
+      },
     })
-    const duration = computed(()=> {                //影片片長時間(秒)
+    const duration = computed(() => {
+      //影片片長時間(秒)
       return store.getters.duration
     })
 
-    const setCurrentTime = ()=> {                   //設定從第幾秒開始播放
-      player.value.seekTo(currentTime.value,true)
+    const setCurrentTime = () => {
+      //設定從第幾秒開始播放
+      player.value.seekTo(currentTime.value, true)
     }
-    const formatTime = (val)=> {                    //格式化影片時間(00:00)
-      let dMinutes = '00'+Math.floor(val/60)
-      let dSeconds = '00'+Math.floor(val%60)
-      return `${dMinutes.substring(dMinutes.length-2)}:${dSeconds.substring(dSeconds.length-2)}`
+    const formatTime = (val) => {
+      //格式化影片時間(00:00)
+      let dMinutes = "00" + Math.floor(val / 60)
+      let dSeconds = "00" + Math.floor(val % 60)
+      return `${dMinutes.substring(dMinutes.length - 2)}:${dSeconds.substring(
+        dSeconds.length - 2
+      )}`
     }
-    const previousVideo = ()=> {                    //前一首影片播放
-      store.dispatch('commitIsOneLoop',false)
-      if(isRandom.value) {
-        let random = Math.floor(Math.random()*player.value.getPlaylist().length)
-        console.log('random',random);
-        store.dispatch('commitYtIdIndex',random)
-        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
+    const previousVideo = () => {
+      //前一首影片播放
+      store.dispatch("commitIsOneLoop", false)
+      if (isRandom.value) {
+        let random = Math.floor(
+          Math.random() * player.value.getPlaylist().length
+        )
+        console.log("random", random)
+        store.dispatch("commitYtIdIndex", random)
+        store.dispatch("commitYtIdVideo", playlist.value[ytId.value.index])
         player.value.previousVideo()
       } else {
-        store.dispatch('commitYtIdIndex',ytId.value.index-1)
-        store.dispatch('commitYtIdVideo',playlist.value[ytId.value.index])
-        if(ytId.value.index < 0) {
-          store.dispatch('commitYtIdIndex',player.value.getPlaylist().length-1)
-          store.dispatch('commitYtIdVideo',player.value.getPlaylist()[player.value.getPlaylist().length-1])
+        store.dispatch("commitYtIdIndex", ytId.value.index - 1)
+        store.dispatch("commitYtIdVideo", playlist.value[ytId.value.index])
+        if (ytId.value.index < 0) {
+          store.dispatch(
+            "commitYtIdIndex",
+            player.value.getPlaylist().length - 1
+          )
+          store.dispatch(
+            "commitYtIdVideo",
+            player.value.getPlaylist()[player.value.getPlaylist().length - 1]
+          )
         }
       }
       loadVideo()
-      loadPlaylist(ytId.value.list,ytId.value.index) 
-    } 
-    const stopVideo = ()=> {                        //停止播放
-      store.dispatch('commitCurrentTime', 0)
-      store.dispatch('commitPlayerState', 1)
+      loadPlaylist(ytId.value.list, ytId.value.index)
+    }
+    const stopVideo = () => {
+      //停止播放
+      store.dispatch("commitCurrentTime", 0)
+      store.dispatch("commitPlayerState", 1)
       player.value.stopVideo()
     }
-    const playPauseVideo = ()=> {                   //播放和暫停
+    const playPauseVideo = () => {
+      //播放和暫停
       player.value.playVideo()
-      store.dispatch('commitPlayerState',player.value.getPlayerState())
-      if(playerState.value == 2) {
+      store.dispatch("commitPlayerState", player.value.getPlayerState())
+      if (playerState.value == 2) {
         player.value.playVideo()
       }
-      if(playerState.value == 1) {
+      if (playerState.value == 1) {
         player.value.pauseVideo()
       }
     }
-    const randomVideo = ()=> {                      //隨機播放
-      store.dispatch('commitIsRandom', !isRandom.value)
-      store.dispatch('commitIsOneLoop',false)
+    const randomVideo = () => {
+      //隨機播放
+      store.dispatch("commitIsRandom", !isRandom.value)
+      store.dispatch("commitIsOneLoop", false)
     }
-    const oneLoop = ()=> {                          //單手重複播放
-      store.dispatch('commitIsOneLoop',!isOneLoop.value)
-      store.dispatch('commitIsRandom', false)
-      store.dispatch('commitYtIdVideo',info.value.data.video_id)
+    const oneLoop = () => {
+      //單手重複播放
+      store.dispatch("commitIsOneLoop", !isOneLoop.value)
+      store.dispatch("commitIsRandom", false)
+      store.dispatch("commitYtIdVideo", info.value.data.video_id)
     }
-    const mute = ()=> {                             //判斷靜音
+    const mute = () => {
+      //判斷靜音
       if (player.value.isMuted()) {
         player.value.unMute()
         volume.value = player.value.getVolume()
@@ -102,13 +129,15 @@ export default {
         volume.value = 0
       }
     }
-    const changeVolume = (val)=> {                  //改變音量
+    const changeVolume = (val) => {
+      //改變音量
       player.value.unMute()
       volume.value = val
       player.value.setVolume(volume.value)
     }
 
-    const volumeRange = computed(()=> {             //判斷音量範圍呈現不同的icon
+    const volumeRange = computed(() => {
+      //判斷音量範圍呈現不同的icon
       if (volume.value > 0 && volume.value < 50) return 2
       if (volume.value > 50 && volume.value < 70) return 3
       if (volume.value > 70) return 4
@@ -118,68 +147,80 @@ export default {
         return 2
       }
     })
-    const buttonPlayPause = computed(()=> {         //判斷播放or暫停呈現不同的icon
-      if(playerState.value == 1 ) {
+    const buttonPlayPause = computed(() => {
+      //判斷播放or暫停呈現不同的icon
+      if (playerState.value == 1) {
         return true
       } else {
         return false
       }
     })
-    const marqueeAnimate = computed(()=> {          //影片標題跑馬燈css動畫
-      if (playerState.value!==1) {
+    const marqueeAnimate = computed(() => {
+      //影片標題跑馬燈css動畫
+      if (playerState.value !== 1) {
         return {
-          'animation-name': `marquee-animate`,
-          'animation-delay': `-1s`,
-          'animation-duration': `15s`,
-          'animation-iteration-count': `infinite`,
-          'animation-timing-function': `linear`,
-          'animation-direction': `alternate`
+          "animation-name": `marquee-animate`,
+          "animation-delay": `-1s`,
+          "animation-duration": `15s`,
+          "animation-iteration-count": `infinite`,
+          "animation-timing-function": `linear`,
+          "animation-direction": `alternate`,
         }
       }
     })
-    const loadVideoCover = computed(()=> {          //呈現影片縮圖
-       return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
+    const loadVideoCover = computed(() => {
+      //呈現影片縮圖
+      return `http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg`
     })
-    const backgroundStyle = computed(()=> {         //設定影片縮圖相關CSS格式
+    const backgroundStyle = computed(() => {
+      //設定影片縮圖相關CSS格式
       return {
-        'background-image': `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
-        'background-position': `center`,
-        'background-size': `cover`,
-        'background-repeat': 'no-repeat',
-        'filter': `blur(16px)`
+        "background-image": `url(http://img.youtube.com/vi/${ytId.value.video}/maxresdefault.jpg)`,
+        "background-position": `center`,
+        "background-size": `cover`,
+        "background-repeat": "no-repeat",
+        filter: `blur(16px)`,
       }
     })
 
     //  ↓------以js改變input range的樣式------↓
-    const hoverId = ref('')                         //hover用ID(存放hover時的dom ID存放hover時的dom ID)
-    const activeId = ref('')                        //active用ID(存放active時的dom ID存放hover時的dom ID)
-    const mouseDown = (e)=> {                       //當mousedown事件時
-      activeId.value = e.target.id                  //符合傳入的id才會觸發css
+    const hoverId = ref("") //hover用ID(存放hover時的dom ID存放hover時的dom ID)
+    const activeId = ref("") //active用ID(存放active時的dom ID存放hover時的dom ID)
+    const mouseDown = (e) => {
+      //當mousedown事件時
+      activeId.value = e.target.id //符合傳入的id才會觸發css
     }
-    const mouseUp = ()=> {                          //當mouseup事件時
-      activeId.value = ''
+    const mouseUp = () => {
+      //當mouseup事件時
+      activeId.value = ""
     }
-    const mouseOver = (e)=> {                       //當mouseover事件時
+    const mouseOver = (e) => {
+      //當mouseover事件時
       hoverId.value = e.target.id
     }
-    const mouseLeave = ()=> {                       //當mouseleave事件時
-      hoverId.value = ''
+    const mouseLeave = () => {
+      //當mouseleave事件時
+      hoverId.value = ""
     }
     //  ↑------以js改變input range的樣式------↑
 
     //  ↓------全螢幕相關------↓
-    const playerScreen = ref()                      //包裝播放器screen的dom
-    const videoIsOpen = ref(false)                  //影片開啟的狀態
-    const isFullScreen = ref(false)                 //全螢幕的狀態
+    const playerScreen = ref() //包裝播放器screen的dom
+    const videoIsOpen = ref(false) //影片開啟的狀態
+    const isFullScreen = ref(false) //全螢幕的狀態
 
-    const handleVideoOpen = ()=> {                  //判斷開啟video
+    const handleVideoOpen = () => {
+      //判斷開啟video
       videoIsOpen.value = !videoIsOpen.value
     }
-    const handleFullScreen = ()=> {                 //判斷開啟全螢幕
+    const handleFullScreen = () => {
+      //判斷開啟全螢幕
       isFullScreen.value = !isFullScreen.value
     }
-    const launchIntoFullscreen = ()=> {             //檢查全螢幕
-      if (document.fullscreenElement) {              //document.fullscreenElement有值時
+    const launchIntoFullscreen = () => {
+      //檢查全螢幕
+      if (document.fullscreenElement) {
+        //document.fullscreenElement有值時
         document.exitFullscreen()
       } else {
         playerScreen.value.requestFullscreen()
@@ -222,11 +263,11 @@ export default {
       launchIntoFullscreen,
       playerScreen,
     }
-  }
+  },
 }
 </script>
 
-<template lang='pug'>
+<template lang="pug">
 //- .player(v-show='videoIsOpen' :class='[{"full-window": isFullScreen}]' )
 .player(v-show='videoIsOpen' ref='playerScreen' )
   .layer(:class='[{"full-window": isFullScreen}]')
@@ -285,10 +326,10 @@ export default {
 
 </template>
 
-<style lang='stylus'>
+<style lang="stylus">
 @import '../css/style.styl'
 .player
-  size(100%,60vh)
+  size(100%,70vh)
   position relative
 
   .layer
@@ -311,15 +352,14 @@ export default {
         color color-secondary-light
       &:hover i
         color color-secondary-dark
-      
+
   #player
     size(100%,100%)
-  
+
 .screen
   position relative
-  background-color color-primary 
-  size(100%,60vh)
-  padding 1vh
+  background-color color-primary
+  size(,70vh)
   flexCenter()
 
   img
@@ -335,13 +375,14 @@ export default {
   .blur-background
     position absolute
     size(100%,50vh)
-  
+
 
 .progress-bar
-  size(100%,4vh)
+  size(100%,8vh)
   color color-secondary-dark
   background-color color-primary-dark
   flexCenter()
+  padding 4px
   .progress-content
     flexCenter(,,column)
     position relative
@@ -374,7 +415,7 @@ export default {
           right 0%
           top 0
           bottom 0
-          background-color color-secondary-light 
+          background-color color-secondary-light
         & > .thumb
           position absolute
           z-index 3
@@ -407,9 +448,12 @@ export default {
       background-color color-secondary
       color  color-primary-dark
   button
+    cursor pointer
     &:active
       background-color color-secondary
       color  color-primary-dark
+    i
+      font-size 1.5rem
 
 .volume-range
   size(100%,auto)
@@ -417,8 +461,11 @@ export default {
   flexCenter(flex-start,center,)
   .volume
     size((100/6)%,100%)
-    button i
-      font-size 1.5rem
+
+    button
+      cursor pointer
+      i
+        font-size 1.5rem
 
   .range-content                  //input range配合js寫法
     size(100%,auto)
@@ -450,7 +497,7 @@ export default {
           top 0
           bottom 0
           border-radius 5px
-          background-color color-secondary-light 
+          background-color color-secondary-light
         & > .thumb
           position absolute
           z-index 3
@@ -469,12 +516,12 @@ export default {
 
 .info
   flexCenter()
-  size(100%,20vh)
-  background-color color-primary-dark 
+  size(100%,10vh)
+  background-color color-primary-dark
   overflow hidden
   position relative
   a.marquee
-    white-space nowrap 
+    white-space nowrap
     position absolute
     color color-secondary
     size(auto,auto)
